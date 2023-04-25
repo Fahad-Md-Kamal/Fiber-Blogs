@@ -4,14 +4,9 @@ import (
 	"fmt"
 
 	"github.com/fahad-md-kamal/fiber-blogs/configs"
-	usermodels "github.com/fahad-md-kamal/fiber-blogs/users/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-func Migrate() {
-	DB.AutoMigrate(&usermodels.Users{})
-}
 
 var DB *gorm.DB
 
@@ -24,7 +19,5 @@ func DbConfig() error {
 	if err != nil {
 		return err
 	}
-
-	Migrate()
 	return nil
 }

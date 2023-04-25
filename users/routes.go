@@ -9,4 +9,5 @@ func UsersRouts(app *fiber.App) {
 	router := app.Group("users")
 
 	router.Get("/", controllers.GetUsersListHandler)
+	router.Post("/", controllers.AddUserHandler)
 }
