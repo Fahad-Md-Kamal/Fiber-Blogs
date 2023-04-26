@@ -45,3 +45,19 @@ func (udto *UserResponseDto) ParseToResponseDto(user *models.Users) {
 	udto.CreatedAt = user.CreatedAt
 	udto.UpdatedAt = user.UpdatedAt
 }
+
+func ParseUsersListToResponseDto(users *[]models.Users) []UserResponseDto {
+	usersList := []UserResponseDto{}
+	for _, user := range *users {
+		usersList = append(usersList, UserResponseDto{
+			Id:          user.ID,
+			Username:    user.Username,
+			Email:       user.Email,
+			IsActive:    user.IsActive,
+			IsSuperuser: user.IsSuperuser,
+			CreatedAt:   user.CreatedAt,
+			UpdatedAt:   user.UpdatedAt,
+		})
+	}
+	return usersList
+}

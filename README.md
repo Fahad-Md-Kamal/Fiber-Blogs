@@ -402,6 +402,52 @@ The code could be found here:
 
 # PART 3 : CRUD
 
+Before going any further, we need to configure our development server to auto reload after any change we made to our codebase, incase of avoiding manual server restart. Here I've use [air](https://github.com/cosmtrek/air) to auto reload my developement server.
+You can follow the instruction from the following url:
+[https://github.com/cosmtrek/air](https://github.com/cosmtrek/air).
+
+**I've followed install.sh but you can choose something else\_**
+
+```bash
+# binary will be $(go env GOPATH)/bin/air
+curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+
+# or install it into ./bin/
+curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s
+
+air -v
+```
+
+Root diractory file `.air.toml`
+
+```txt
+# .air.toml
+
+root = "."
+tmp_dir = "tmp"
+build_dir = "tmp/build"
+
+[[runners]]
+  name = "Fiber"
+  path = "."
+  args = ["./tmp/build/main"]
+  env = {}
+
+[runners.log]
+  mode = "console"
+  prefix = "Fiber"
+  color = true
+
+```
+
+Instead of running server with `go run main.go` now run the server with the command
+
+```bash
+
+```
+
+Now Lets start developing our API Endpoints
+
 ## C: Create
 
 I have seperated database migration machanisams to a seperate package named migrations as follows:
@@ -650,3 +696,154 @@ Now restart the application from the Postman to create a user.
 - On successfully creating user, it will return the user as `UserResponseDto`
 
 ---
+
+## R : Read (List)
+
+Lets create our User's List API Handler
+
+```go
+func GetUsersListHandler(c *fiber.Ctx) error {
+
+	// Parse pagination parameters
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	limit, _ := strconv.Atoi(c.Query("limit", "10"))
+	offset := (page - 1) * limit
+
+	// Get Users List
+	users, totalCount, err := models.GetUsersList(limit, offset)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// Convert User's list into response Dtos
+	userDtos := dtos.ParseUsersListToResponseDto(&users)
+
+	// Get Paginated Response
+	pagination := utils.Paginate(int(totalCount), limit, page, userDtos)
+	return c.JSON(pagination)
+}
+```
+
+- Here we have added page, limit and offset for paginated reponse of user's list.
+- We have added a function `GetUsersList()` to our models.Users struct since we are interacting with database from our models package.
+- We are passing `limit` and `offset` to it as parameters and receiving users list, totalCount and error from it.
+
+```go
+// users/models/users.go
+
+
+func GetUsersList(limit, offset int) ([]Users, int64, error) {
+	var users []Users
+	var totalCount int64
+
+	if err := database.DB.Model(Users{}).Count(&totalCount).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := database.DB.Model(Users{}).Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, totalCount, nil
+}
+
+```
+
+- Then we are Parsing models.Users list into User's Response Dto list in order to hide some fields from users.
+
+```go
+func ParseUsersListToResponseDto(users *[]models.Users) []UserResponseDto {
+	usersList := []UserResponseDto{}
+	for _, user := range *users {
+		usersList = append(usersList, UserResponseDto{
+			Id:          user.ID,
+			Username:    user.Username,
+			Email:       user.Email,
+			IsActive:    user.IsActive,
+			IsSuperuser: user.IsSuperuser,
+			CreatedAt:   user.CreatedAt,
+			UpdatedAt:   user.UpdatedAt,
+		})
+	}
+	return usersList
+}
+
+```
+
+- Finally preparing the paginated Response to send to the user.
+
+```go
+type Pagination struct {
+	TotalCount  int64       `json:"total_count"`
+	Limit       int         `json:"limit"`
+	CurrentPage int         `json:"current_page"`
+	TotalPages  int         `json:"total_pages"`
+	HasNextPage bool        `json:"has_next_page"`
+	HasPrevPage bool        `json:"has_prev_page"`
+	NextPage    int         `json:"next_page"`
+	PrevPage    int         `json:"prev_page"`
+	Data        interface{} `json:"data"`
+}
+
+func Paginate(totalCount, limit, currentPage int, data interface{}) *Pagination {
+	totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+	hasNextPage := currentPage < totalPages
+	hasPrevPage := currentPage > 1
+	nextPage := currentPage + 1
+	prevPage := currentPage - 1
+
+	return &Pagination{
+		TotalCount:  int64(totalCount),
+		Limit:       limit,
+		CurrentPage: currentPage,
+		TotalPages:  totalPages,
+		HasNextPage: hasNextPage,
+		HasPrevPage: hasPrevPage,
+		NextPage:    nextPage,
+		PrevPage:    prevPage,
+		Data:        data,
+	}
+}
+```
+
+Since this api was already configured to our routes list we are not going to add anything there.
+
+Now run the application and see th paginated response.
+
+```json
+{
+  "total_count": 2,
+  "limit": 10,
+  "current_page": 1,
+  "total_pages": 1,
+  "has_next_page": false,
+  "has_prev_page": false,
+  "next_page": 2,
+  "prev_page": 0,
+  "data": [
+    {
+      "id": 1,
+      "username": "fahad",
+      "email": "fahadmdkamal@gmail.com",
+      "is_active": false,
+      "is_superuser": false,
+      "created_at": "2023-04-26T00:35:07.392797+06:00",
+      "updated_at": "2023-04-26T00:35:07.392797+06:00"
+    },
+    {
+      "id": 2,
+      "username": "fahadmdkamal",
+      "email": "faahad.hossain@gmail.com",
+      "is_active": false,
+      "is_superuser": false,
+      "created_at": "2023-04-26T00:40:31.994202+06:00",
+      "updated_at": "2023-04-26T00:40:31.994202+06:00"
+    }
+  ]
+}
+```
+
+That's it about the List API.
+**Next we are going to work with User details API**
+
+## R: Read (Details)

@@ -44,3 +44,18 @@ func (u *Users) GeneratePasswordHash() (error, bool) {
 	u.Password = string(hashedPassword)
 	return nil, true
 }
+
+func GetUsersList(limit, offset int) ([]Users, int64, error) {
+	var users []Users
+	var totalCount int64
+
+	if err := database.DB.Model(Users{}).Count(&totalCount).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := database.DB.Model(Users{}).Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, totalCount, nil
+}
