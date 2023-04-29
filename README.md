@@ -110,7 +110,7 @@ go run main.go
 
 This will start your go project and start listening to the port **3000**. You will see this something similar to the following to your terminal.
 
-![Screenshot 2023-04-25 at 12.56.39 PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/70fa5c9b-3999-44fb-ba66-26212a98cfac/Screenshot_2023-04-25_at_12.56.39_PM.png)
+![Screenshot 2023-04-25 at 12.56.39 PM.png](https://user-images.githubusercontent.com/34704464/235286857-858a7ee1-7c40-444e-b0c9-e931e9c241ab.png)
 
 Congratulations !!
 
@@ -172,7 +172,7 @@ func SetupAndListen() {
 
 Now restart the project and hit the API [http://localhost:3000/users](http://localhost:3000/users) and you will see the following response:
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/12bb608f-1a27-420a-811b-79506b984fb0/Untitled.png)
+![Run Project Success](https://user-images.githubusercontent.com/34704464/235286896-a44e7b20-c994-4a87-8703-5aa69f22a338.png)
 
 Congratulations !!
 
@@ -180,7 +180,7 @@ Our Fiber API receives API requests from clients. returns response.
 
 Now our project’s structure should look as follows:
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/929e502f-c62f-4dbc-9b77-91d419e32904/Untitled.png)
+![Project Stracture](https://user-images.githubusercontent.com/34704464/235286937-b8569085-d8f7-4992-aed0-2c4830846cb7.png)
 
 The code could be found here:
 
@@ -394,7 +394,7 @@ You have created connected the database and created a table with GORM.
 
 Folder Architecture should look like this.
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/d44ab70a-41cc-4eb0-b62a-e918f54d178e/Untitled.png)
+![Folder Stracture](https://user-images.githubusercontent.com/34704464/235286978-47a08cfd-2ae4-4c4c-b88a-9dc069b2a6d6.png)
 
 The code could be found here:
 
