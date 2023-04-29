@@ -26,6 +26,30 @@ func (data *UserCreateDto) ParseFromDto() (user *models.Users) {
 	return user
 }
 
+type UserUpdateDto struct {
+	Email       string `json:"email" validate:"omitempty,email,min=8,max=100"`
+	IsSuperuser *bool  `json:"is_superuser" validate:"omitempty"`
+	IsActive    *bool  `json:"is_active" validate:"omitempty"`
+}
+
+func (data *UserUpdateDto) ValidateUserUpdateDto() ([]*utils.ErrorResponse, bool) {
+	errors := utils.ValidateStruct(data)
+	return errors, len(errors) == 0
+}
+
+func (data *UserUpdateDto) MapUserFieldsToUpdate(userDataToUpdate *models.Users) *models.Users {
+	if data.Email != "" {
+		userDataToUpdate.Email = data.Email
+	}
+	if data.IsActive != nil {
+		userDataToUpdate.IsActive = *data.IsActive
+	}
+	if data.IsSuperuser != nil {
+		userDataToUpdate.IsSuperuser = *data.IsSuperuser
+	}
+	return userDataToUpdate
+}
+
 type UserResponseDto struct {
 	Id          uint      `json:"id"`
 	Username    string    `json:"username"`

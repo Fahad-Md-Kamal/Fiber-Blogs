@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/fahad-md-kamal/fiber-blogs/database"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -18,9 +16,16 @@ type Users struct {
 }
 
 func (u *Users) ValidateUserExists() (string, bool) {
-	var user Users
-	result := database.DB.Where("username = ? OR email = ?", u.Username, u.Email).First(&user)
-	return fmt.Sprintf("User exists with username: %s OR email: %s", u.Username, u.Email), result.RowsAffected > 0
+	var count int64
+	query := database.DB.Model(&Users{}).Where("username = ? OR email = ?", u.Username, u.Email)
+	if u.ID > 0 {
+		query = query.Not("id = ?", u.ID)
+	}
+	err := query.Count(&count).Error
+	if err != nil {
+		return err.Error(), true
+	}
+	return "User exists with the given attribute(s)", count > 0
 }
 
 func (u *Users) Save() error {
@@ -67,4 +72,11 @@ func GetUserById(userId uint) (*Users, error) {
 		return nil, result.Error
 	}
 	return &user, nil
+}
+
+func (dbUser *Users) UpdateUser(updateDto interface{}, omitFields ...string) (*Users, error) {
+	if result := database.DB.Model(dbUser).Omit(omitFields...).Updates(updateDto); result.Error != nil {
+		return nil, result.Error
+	}
+	return dbUser, nil
 }

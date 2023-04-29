@@ -85,3 +85,49 @@ func GetUserDetailHandler(c *fiber.Ctx) error {
 		"data": &dtoUser,
 	})
 }
+
+func UpdateUserHandler(c *fiber.Ctx) error {
+	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Invalid User Id",
+		})
+	}
+
+	var userUpdateDto dtos.UserUpdateDto
+	if err := c.BodyParser(&userUpdateDto); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to parse provided data",
+		})
+	}
+
+	if errors, ok := userUpdateDto.ValidateUserUpdateDto(); !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   errors,
+			"message": "Invalid data to update",
+		})
+	}
+
+	user, err := models.GetUserById(uint(userId))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to get user",
+		})
+	}
+
+	updatedUser, err := user.UpdateUser(&userUpdateDto)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to update user",
+		})
+	}
+
+	dtoUser := dtos.ParseUserToResponseDto(updatedUser)
+	return c.JSON(fiber.Map{
+		"data": &dtoUser,
+	})
+}
