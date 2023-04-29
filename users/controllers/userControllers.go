@@ -131,7 +131,7 @@ func UpdateUserHandler(c *fiber.Ctx) error {
 		UserId: userToUpdate.ID,
 		Email:  userUpdateDto.Email,
 	}
-	msg, exists := models.ValidateUserExistsWithEmailOrUsername(userCheckParams)
+	_, msg, exists := models.ValidateUserExistsWithEmailOrUsername(userCheckParams)
 
 	if exists {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

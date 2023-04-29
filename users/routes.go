@@ -13,4 +13,8 @@ func UsersRouts(app *fiber.App) {
 	router.Get("/:id", controllers.GetUserDetailHandler)
 	router.Put("/:id", controllers.UpdateUserHandler)
 	router.Delete("/:id", controllers.DeleteUserHandler)
+
+	unProtectedRoute := app.Group("")
+	unProtectedRoute.Post("/login", controllers.LoginHandler)
+	unProtectedRoute.Get("/logout", controllers.LogoutHandler)
 }

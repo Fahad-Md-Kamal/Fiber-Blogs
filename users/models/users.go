@@ -58,18 +58,29 @@ func (u *Users) DeleteUser() error {
 	return nil
 }
 
-func ValidateUserExistsWithEmailOrUsername(params UserCheckParams) (string, bool) {
+func ValidateUserExistsWithEmailOrUsername(params UserCheckParams) (*Users, string, bool) {
 	var count int64
+	var dbUser Users
+	msg := ""
+	exists := false
 	query := database.DB.Model(&Users{}).Where("username = ? OR email = ?", params.Username, params.Email)
 	if params.UserId > 0 {
 		query = query.Not("id = ?", params.UserId)
 	}
-	err := query.Count(&count).Error
-	if err != nil {
-		log.Printf("Error while checking user with email %s | username %s | Error: %s", params.Email, params.Username, err.Error())
-		return "User exists with the given attribute(s)", true
+
+	if err := query.First(&dbUser).Error; err == nil {
+		log.Printf("Found User with Username: %s | Email: %s", params.Username, params.Email)
+		msg = "User exists with the given attribute(s)"
+		exists = true
 	}
-	return "User exists with the given attribute(s)", count > 0
+
+	if err := query.Count(&count).Error; err == nil {
+		log.Printf("Found %d User with Username: %s | Email: %s", count, params.Username, params.Email)
+		msg = "Several User Exists with the given attribute(s)"
+		exists = count > 0
+	}
+
+	return &dbUser, msg, exists
 }
 
 func (u *Users) ValidateUserExists() (string, bool) {
@@ -78,7 +89,8 @@ func (u *Users) ValidateUserExists() (string, bool) {
 		Username: u.Username,
 		Email:    u.Email,
 	}
-	return ValidateUserExistsWithEmailOrUsername(userParams)
+	_, msg, exists := ValidateUserExistsWithEmailOrUsername(userParams)
+	return msg, exists
 }
 
 func (u *Users) Save() error {
@@ -104,6 +116,14 @@ func (u *Users) GeneratePasswordHash() (error, bool) {
 	}
 	u.Password = string(hashedPassword)
 	return nil, true
+}
+
+func (user *Users) ValidatePasswordHash(password string) (string, bool) {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		log.Printf("comparing token got error %s", err.Error())
+		return "Invalid credentials", false
+	}
+	return "", true
 }
 
 func (userToUpdate *Users) UpdateUser(updateData interface{}, omitFields ...string) (*Users, error) {

@@ -1209,3 +1209,249 @@ After this far folder stracture should look like this
 ├── pagination.go
 └── validateStructs.go
 ```
+
+**_N.B. I have update the project to show log instead of returning system error to users_**
+
+## Let's Create User Login API's Including JWT token
+
+First we will install Golang-jwt package for jwt token
+
+```bash
+go get github.com/golang-jwt/jwt
+```
+
+`configs/envVars.go`
+
+```go
+type EnvConfig struct {
+	...
+	JwtSecretKey  string `mapstructure:"JWT_SECRET_KEY"`
+	TokenLifeTime string `mapstructure:"TOKEN_LIFETIME"`
+}
+```
+
+> Here I have added to environment variables that will be used for generating JWT token
+
+Update `ValidateUserExistsWithEmailOrUsername` to return 3 data instead of only two.
+
+```go
+func ValidateUserExistsWithEmailOrUsername(params UserCheckParams) (*Users, string, bool) {
+	....
+	return &dbUser, msg, exists
+}
+```
+
+Added several model Dto structs for login Request, login Response, token claim as well as added `ParseToLoginResponseDto` function.
+
+```go
+
+type TokenClaimPayload struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	jwt.StandardClaims
+}
+
+type LoginRequestDto struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+func (data *LoginRequestDto) ValidateLoginRequestDto() ([]*utils.ErrorResponse, bool) {
+	errors := utils.ValidateStruct(data)
+	return errors, len(errors) == 0
+}
+
+type LoginResponseDto struct {
+	UserID      uint   `json:"userId"`
+	Username    string `json:"username"`
+	Email       string `json:"email"`
+	Token       string `json:"token"`
+	IsSuperuser bool   `json:"isSuperUser"`
+}
+
+func ParseToLoginResponseDto(token string, u *models.Users) *LoginResponseDto {
+	loginResponseDto := LoginResponseDto{
+		UserID:   u.ID,
+		Username: u.Username,
+		Email:    u.Email,
+		Token:    token,
+	}
+
+	return &loginResponseDto
+}
+```
+
+Added ValidatePasswordHash() at `users/models/users.go` to validate password hash
+
+```go
+func (user *Users) ValidatePasswordHash(password string) (string, bool) {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		log.Printf("comparing token got error %s", err.Error())
+		return "Invalid credentials", false
+	}
+	return "", true
+}
+```
+
+Added `GenerateJwtToken()` that will be generating jwt tokens.
+
+```go
+
+func GenerateJwtToken(user *models.Users) (string, bool) {
+	tokenLifetime, err := strconv.ParseInt(configs.ENVs.TokenLifeTime, 10, 0)
+	if err != nil {
+		log.Printf("Failed to read token lifetime environment variable: %s", err.Error())
+		return "Failed to read token lifetime environment variable", false
+	}
+	claims := &dtos.TokenClaimPayload{
+		ID:       user.ID,
+		Username: user.Username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Duration(tokenLifetime) * time.Hour).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(configs.ENVs.JwtSecretKey))
+	if err != nil {
+		log.Printf("Internal server error while attaching signe to the token: %s", err.Error())
+		return "Error for generating signed token", false
+	}
+
+	return tokenString, true
+}
+```
+
+> Here token claim fields are added along with token lifetime duration.
+>
+> Later I'm signing the token with our JwtSecretKey
+
+Than I've added a loginHandler function on `users/controllers/authControllers.go` file
+
+```go
+
+func LoginHandler(c *fiber.Ctx) error {
+	loginRequestData := dtos.LoginRequestDto{}
+	if err := c.BodyParser(&loginRequestData); err != nil {
+		log.Printf("Error parsing Login Request: %s | Error: %s", c.Params("id"), err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Login Data"})
+	}
+
+	if errors, ok := loginRequestData.ValidateLoginRequestDto(); !ok {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": errors})
+	}
+
+	userCheckParams := models.UserCheckParams{
+		Username: loginRequestData.Username,
+		Email:    loginRequestData.Username,
+	}
+	dbUser, _, exists := models.ValidateUserExistsWithEmailOrUsername(userCheckParams)
+	if !exists {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+	}
+
+	tokenString, success := helpers.GenerateJwtToken(dbUser, loginRequestData.Password)
+	if !success {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Faild to create auth token"})
+	}
+	userResponseDto := dtos.ParseToLoginResponseDto(tokenString, dbUser)
+	return c.JSON(&userResponseDto)
+}
+```
+
+> First I'm parsing user data from request to `LoginUserRequestDto` and validating it with the function `loginRequestData.ValidateLoginRequestDto()`.
+>
+> Then I'm validating and fetching user from database if user exists.
+>
+> Later I'm generating jwt token and parsing the user to `LoginUserResponseDto` before returning it.
+
+Finally, I've created an additional named unprotected router since that will be open for anyone to login into the system.
+
+```go
+func UsersRouts(app *fiber.App) {
+	router := app.Group("users")
+	...
+
+	unProtectedRoute := app.Group("")
+	unProtectedRoute.Post("/login", controllers.LoginHandler)
+}
+
+```
+
+That's it our api Allows us to login into the system.
+
+[Login API Response](https://user-images.githubusercontent.com/34704464/235322125-e69257b6-db80-4c0b-bfce-6551819fd8d3.png)
+
+### Now lets develope logout api
+
+First we need to create a BlacklistedToken model to store tokens into the database with one functions to Check if token is balcklisted or not. And other to store the token into the database as blacklisted.
+
+```go
+type BlacklistedTokens struct {
+	gorm.Model
+	Token string `gorm:"uniqueIndex" json:"token"`
+}
+
+func (t *BlacklistedTokens) IsTokenBlacklisted() bool {
+	var count int64
+	if err := database.DB.Where("token = ?", t.Token).Find(&t).Count(&count).Error; err == nil {
+		return count > 0
+	}
+	return count > 0
+}
+
+func (t *BlacklistedTokens) BlacklistToken() bool {
+	if err := database.DB.Model(&t).Create(&t).Error; err != nil {
+		log.Printf("Error making token as blacklisted %s", err.Error())
+		return false
+	}
+	return true
+}
+
+```
+
+`users/controllers/authControllers.go`
+
+```go
+func LogoutHandler(c *fiber.Ctx) error {
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":   "Unauthorized",
+			"message": "Missing Authorization header",
+		})
+	}
+
+	authToken := strings.Split(authHeader, " ")[1]
+
+	// Invalidate the token by adding it to the blacklist
+	blacklistedToken := models.BlacklistedTokens{Token: authToken}
+
+	if ok := blacklistedToken.IsTokenBlacklisted(); ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token or token expired",
+		})
+	}
+
+	if ok := blacklistedToken.BlacklistToken(); !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Couldn't blacklist token",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "User logged out",
+	})
+}
+```
+
+Here we are parsing token from request header and validating if token is already blacklisted or not. Finally we are making token as blacklisted.
+
+Now register this token to the routers and hit the api. It will logout users successfully.
+
+![user logout success](https://user-images.githubusercontent.com/34704464/235322440-04daf536-07e5-41a8-9c91-be46ae2e5129.png)
+
+**_N.B. We will move the validation part of token if it's blacklisted or not into our middleware function later since that will be responsible for validating every requests. Once we develop that._**
+
+Congratulations !!
+
+Our Login & Logout API with JWT token (serverless access) complete.

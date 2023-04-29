@@ -11,14 +11,15 @@ import (
 )
 
 type EnvConfig struct {
-	ServingPort  string `mapstructure:"SERVING_PORT"`
-	DbHost       string `mapstructure:"DB_HOST"`
-	DbPort       string `mapstructure:"DB_PORT"`
-	DbName       string `mapstructure:"DB_NAME"`
-	DbUser       string `mapstructure:"DB_USER"`
-	DbPassword   string `mapstructure:"DB_PASSWORD"`
-	SecretKey    string `mapstructure:"SECRET_KEY"`
-	JwtSecretKey string `mapstructure:"JWT_SECRET_KEY"`
+	ServingPort   string `mapstructure:"SERVING_PORT"`
+	DbHost        string `mapstructure:"DB_HOST"`
+	DbPort        string `mapstructure:"DB_PORT"`
+	DbName        string `mapstructure:"DB_NAME"`
+	DbUser        string `mapstructure:"DB_USER"`
+	DbPassword    string `mapstructure:"DB_PASSWORD"`
+	SecretKey     string `mapstructure:"SECRET_KEY"`
+	JwtSecretKey  string `mapstructure:"JWT_SECRET_KEY"`
+	TokenLifeTime string `mapstructure:"TOKEN_LIFETIME"`
 }
 
 var ENVs EnvConfig

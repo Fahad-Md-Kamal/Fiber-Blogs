@@ -8,5 +8,6 @@ import (
 func MigrateChanges() {
 	database.DB.AutoMigrate(
 		&usermodels.Users{},
+		&usermodels.BlacklistedTokens{},
 	)
 }
