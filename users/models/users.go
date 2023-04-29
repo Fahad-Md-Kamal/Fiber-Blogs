@@ -15,17 +15,32 @@ type Users struct {
 	IsActive    bool   `gorm:"default=true;not null" json:"is_active"`
 }
 
-func (u *Users) ValidateUserExists() (string, bool) {
+type UserCheckParams struct {
+	UserId   uint
+	Username string
+	Email    string
+}
+
+func ValidateUserExistsWithEmailOrUsername(params UserCheckParams) (string, bool) {
 	var count int64
-	query := database.DB.Model(&Users{}).Where("username = ? OR email = ?", u.Username, u.Email)
-	if u.ID > 0 {
-		query = query.Not("id = ?", u.ID)
+	query := database.DB.Model(&Users{}).Where("username = ? OR email = ?", params.Username, params.Email)
+	if params.UserId > 0 {
+		query = query.Not("id = ?", params.UserId)
 	}
 	err := query.Count(&count).Error
 	if err != nil {
 		return err.Error(), true
 	}
 	return "User exists with the given attribute(s)", count > 0
+}
+
+func (u *Users) ValidateUserExists() (string, bool) {
+	userParams := UserCheckParams{
+		UserId:   u.ID,
+		Username: u.Username,
+		Email:    u.Email,
+	}
+	return ValidateUserExistsWithEmailOrUsername(userParams)
 }
 
 func (u *Users) Save() error {
@@ -74,9 +89,11 @@ func GetUserById(userId uint) (*Users, error) {
 	return &user, nil
 }
 
-func (dbUser *Users) UpdateUser(updateDto interface{}, omitFields ...string) (*Users, error) {
-	if result := database.DB.Model(dbUser).Omit(omitFields...).Updates(updateDto); result.Error != nil {
+func (userToUpdate *Users) UpdateUser(updateData interface{}, omitFields ...string) (*Users, error) {
+	// Convert the updateData to a map for validation
+
+	if result := database.DB.Model(userToUpdate).Omit(omitFields...).Updates(updateData); result.Error != nil {
 		return nil, result.Error
 	}
-	return dbUser, nil
+	return userToUpdate, nil
 }

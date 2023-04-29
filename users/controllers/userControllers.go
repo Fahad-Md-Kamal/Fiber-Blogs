@@ -110,7 +110,7 @@ func UpdateUserHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := models.GetUserById(uint(userId))
+	userToUpdate, err := models.GetUserById(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":   err.Error(),
@@ -118,7 +118,20 @@ func UpdateUserHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	updatedUser, err := user.UpdateUser(&userUpdateDto)
+	userCheckParams := models.UserCheckParams{
+		UserId: userToUpdate.ID,
+		Email:  userUpdateDto.Email,
+	}
+	msg, exists := models.ValidateUserExistsWithEmailOrUsername(userCheckParams)
+
+	if exists {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   msg,
+			"message": msg,
+		})
+	}
+
+	updatedUser, err := userToUpdate.UpdateUser(&userUpdateDto)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":   err.Error(),

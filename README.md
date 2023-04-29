@@ -645,9 +645,9 @@ func (u *Users) GeneratePasswordHash() (error, bool) {
 ```
 
 > `ValidateUserExists()` will check if user exists with username or email.
-
+>
 > `Save()` will create object if there is no Id otherwise will save it
-
+>
 > `GeneratePasswordHash()` will generate password hash before saving it.
 
 Now we will update our AddUserHandler() for creating user as follows.
@@ -944,3 +944,174 @@ router.Get("/:id", controllers.GetUserDetailHandler)
 Let's hit the endpoint `{{url}}/users/1` and test our api:
 
 ![User Detail API POST](https://user-images.githubusercontent.com/34704464/235286434-7f5e1648-a3d7-4cb2-8092-2f689aada587.png)
+
+### Congratulations !!
+
+We have developed the Detail API endpoint.
+
+## U : UPDATE (PUT)
+
+### Lets create update api.
+
+`First, lets create a `UpdateUser`function into our`users/models/users.go` file that will be responsible for communicating with the database.
+
+```go
+func (userToUpdate *Users) UpdateUser(updateDto interface{}, omitFields ...string) (*Users, error) {
+	if result := database.DB.Model(userToUpdate).Omit(omitFields...).Updates(updateDto); result.Error != nil {
+		return nil, result.Error
+	}
+	return userToUpdate, nil
+}
+```
+
+> Here we are passing an interface that will be passed from the handler to update the user.
+>
+> We are also accepting optional parameters that should be passed to be ignored on update fields.
+>
+> > **_e.g. This is because we want to restric general users to update certain fields such IsSuperuser, IsActive, Username etc._**
+
+We need to update our `ValidateUserExists` function (that we have developed for creating user) and create another function `ValidateUserExistsWithEmailOrUsername` to check user exists with the `username` and `email`.
+
+```go
+type UserCheckParams struct {
+	UserId   uint
+	Username string
+	Email    string
+}
+
+func ValidateUserExistsWithEmailOrUsername(params UserCheckParams) (string, bool) {
+	var count int64
+	query := database.DB.Model(&Users{}).Where("username = ? OR email = ?", params.Username, params.Email)
+	if params.UserId > 0 {
+		query = query.Not("id = ?", params.UserId)
+	}
+	err := query.Count(&count).Error
+	if err != nil {
+		return err.Error(), true
+	}
+	return "User exists with the given attribute(s)", count > 0
+}
+
+func (u *Users) ValidateUserExists() (string, bool) {
+	userParams := UserCheckParams{
+		UserId:   u.ID,
+		Username: u.Username,
+		Email:    u.Email,
+	}
+	return ValidateUserExistsWithEmailOrUsername(userParams)
+}
+```
+
+> Here we have created a `UserCheckParams` struct to control the parameters from single point.
+
+Now lets add an update UpdateUserDto that will be responsible for validating user update fields
+
+```go
+type UserUpdateDto struct {
+	Email       string `json:"email" validate:"omitempty,email,min=8,max=100"`
+	IsSuperuser *bool  `json:"is_superuser" validate:"omitempty"`
+	IsActive    *bool  `json:"is_active" validate:"omitempty"`
+}
+
+func (data *UserUpdateDto) ValidateUserUpdateDto() ([]*utils.ErrorResponse, bool) {
+	errors := utils.ValidateStruct(data)
+	return errors, len(errors) == 0
+}
+```
+
+> Here we added `validate:"omitempty"` to `UserUpdateDto` struct to make fields optional for validator to validate.
+>
+> We are also taking `IsSupseruser` or `IsActive` boolean pointer so that, if user passes a value it shouldn't be null otherwise it will be a null.
+
+**Handler Function**
+
+```go
+
+func UpdateUserHandler(c *fiber.Ctx) error {
+	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Invalid User Id",
+		})
+	}
+
+	var userUpdateDto dtos.UserUpdateDto
+	if err := c.BodyParser(&userUpdateDto); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to parse provided data",
+		})
+	}
+
+	if errors, ok := userUpdateDto.ValidateUserUpdateDto(); !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   errors,
+			"message": "Invalid data to update",
+		})
+	}
+
+	userToUpdate, err := models.GetUserById(uint(userId))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to get user",
+		})
+	}
+
+	userCheckParams := models.UserCheckParams{
+		UserId: userToUpdate.ID,
+		Email:  userUpdateDto.Email,
+	}
+	msg, exists := models.ValidateUserExistsWithEmailOrUsername(userCheckParams)
+
+	if exists {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   msg,
+			"message": msg,
+		})
+	}
+
+	updatedUser, err := userToUpdate.UpdateUser(&userUpdateDto)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to update user",
+		})
+	}
+
+	dtoUser := dtos.ParseUserToResponseDto(updatedUser)
+	return c.JSON(fiber.Map{
+		"data": &dtoUser,
+	})
+}
+```
+
+> Here we are taking user id from the request and parsing it to `uint` and Geting user with the given ID.
+>
+> Parsing provided data to `UserUpdateDto` and validating fields.
+> Later we are geting user from the database
+> Validating User with the given email exists.
+> Finally we are updating user and returning the udpated user data by persing it `intoUserToResponseDto`
+
+Now register this handler to `users/routes.go` with for put request:
+
+```go
+
+func UsersRouts(app *fiber.App) {
+	router := app.Group("users")
+
+	...
+	router.Put("/:id", controllers.UpdateUserHandler)
+}
+```
+
+Now hit the api : `{{url}}/users/1`
+
+![User UPDATE API](https://user-images.githubusercontent.com/34704464/235298500-e5cba53e-6d5d-4727-80c5-a366a5e0c226.png)
+
+Congratulations !!!
+
+We have created an update API.
+
+Later we are going to create secure these apis by adding middlewares to limit update functionality

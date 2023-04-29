@@ -37,19 +37,6 @@ func (data *UserUpdateDto) ValidateUserUpdateDto() ([]*utils.ErrorResponse, bool
 	return errors, len(errors) == 0
 }
 
-func (data *UserUpdateDto) MapUserFieldsToUpdate(userDataToUpdate *models.Users) *models.Users {
-	if data.Email != "" {
-		userDataToUpdate.Email = data.Email
-	}
-	if data.IsActive != nil {
-		userDataToUpdate.IsActive = *data.IsActive
-	}
-	if data.IsSuperuser != nil {
-		userDataToUpdate.IsSuperuser = *data.IsSuperuser
-	}
-	return userDataToUpdate
-}
-
 type UserResponseDto struct {
 	Id          uint      `json:"id"`
 	Username    string    `json:"username"`
