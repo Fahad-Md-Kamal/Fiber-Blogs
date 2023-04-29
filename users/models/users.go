@@ -21,6 +21,37 @@ type UserCheckParams struct {
 	Email    string
 }
 
+func GetUsersList(limit, offset int) ([]Users, int64, error) {
+	var users []Users
+	var totalCount int64
+
+	if err := database.DB.Model(Users{}).Count(&totalCount).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := database.DB.Model(Users{}).Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, totalCount, nil
+}
+
+func GetUserById(userId uint) (*Users, error) {
+	var user Users
+	result := database.DB.First(&user, userId)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func (u *Users) DeleteUser() error {
+	if result := database.DB.Delete(&u); result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func ValidateUserExistsWithEmailOrUsername(params UserCheckParams) (string, bool) {
 	var count int64
 	query := database.DB.Model(&Users{}).Where("username = ? OR email = ?", params.Username, params.Email)
@@ -63,30 +94,6 @@ func (u *Users) GeneratePasswordHash() (error, bool) {
 	}
 	u.Password = string(hashedPassword)
 	return nil, true
-}
-
-func GetUsersList(limit, offset int) ([]Users, int64, error) {
-	var users []Users
-	var totalCount int64
-
-	if err := database.DB.Model(Users{}).Count(&totalCount).Error; err != nil {
-		return nil, 0, err
-	}
-
-	if err := database.DB.Model(Users{}).Limit(limit).Offset(offset).Find(&users).Error; err != nil {
-		return nil, 0, err
-	}
-
-	return users, totalCount, nil
-}
-
-func GetUserById(userId uint) (*Users, error) {
-	var user Users
-	result := database.DB.First(&user, userId)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &user, nil
 }
 
 func (userToUpdate *Users) UpdateUser(updateData interface{}, omitFields ...string) (*Users, error) {

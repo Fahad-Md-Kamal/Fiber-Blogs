@@ -144,3 +144,29 @@ func UpdateUserHandler(c *fiber.Ctx) error {
 		"data": &dtoUser,
 	})
 }
+
+func DeleteUserHandler(c *fiber.Ctx) error {
+	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Invalid User Id",
+		})
+	}
+
+	userToDelete, err := models.GetUserById(uint(userId))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to get user",
+		})
+	}
+
+	if err := userToDelete.DeleteUser(); err != nil {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Couldn't delete user",
+		})
+	}
+	return c.Status(fiber.StatusNoContent).JSON(fiber.Map{})
+}

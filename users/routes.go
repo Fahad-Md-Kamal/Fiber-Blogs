@@ -12,4 +12,5 @@ func UsersRouts(app *fiber.App) {
 	router.Get("/", controllers.GetUsersListHandler)
 	router.Get("/:id", controllers.GetUserDetailHandler)
 	router.Put("/:id", controllers.UpdateUserHandler)
+	router.Delete("/:id", controllers.DeleteUserHandler)
 }

@@ -951,7 +951,7 @@ We have developed the Detail API endpoint.
 
 ## U : UPDATE (PUT)
 
-### Lets create update api.
+### Lets develop an update api.
 
 `First, lets create a `UpdateUser`function into our`users/models/users.go` file that will be responsible for communicating with the database.
 
@@ -1114,4 +1114,98 @@ Congratulations !!!
 
 We have created an update API.
 
-Later we are going to create secure these apis by adding middlewares to limit update functionality
+## D : DELETE (Delete)
+
+### Lets develop the delete api
+
+`users/models/users.go`
+
+```go
+func (u *Users) DeleteUser() error {
+	if result := database.DB.Delete(&u); result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+```
+
+In this function we simply deleting user from the database. (**_e.g. Soft delete_**)
+
+**Delete User Handler**
+
+```go
+func DeleteUserHandler(c *fiber.Ctx) error {
+	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Invalid User Id",
+		})
+	}
+
+	userToDelete, err := models.GetUserById(uint(userId))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to get user",
+		})
+	}
+
+	if err := userToDelete.DeleteUser(); err != nil {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Couldn't delete user",
+		})
+	}
+	return c.Status(fiber.StatusNoContent).JSON(fiber.Map{})
+}
+```
+
+> Here we are reusing most of the topic from `GetUserDetailHandler` but instead of returning users we are using the DeleteUser() function that we have developed early and on success delete we are returning `204` status without any error message.
+
+Now Lets register this Handler to our routes
+
+```go
+func UsersRouts(app *fiber.App) {
+	router := app.Group("users")
+	...
+	router.Delete("/:id", controllers.DeleteUserHandler)
+}
+```
+
+Congratulations !!
+We have successfully developed the Delete API.
+
+After hitting `{{url}}/users/<user_id_to_delete>` **_e.g: `{{url}}/users/2`_** we can successfully delete a user.
+
+![User Delete API](https://user-images.githubusercontent.com/34704464/235302936-70d17000-860f-44ef-8755-54c9465ab8dd.png)
+
+After this far folder stracture should look like this
+
+```
+├── LICENSE
+├── README.md
+├── configs
+│ └── envVars.go
+├── database
+│ └── dbSetup.go
+├── example.env
+├── go.mod
+├── go.sum
+├── main.go
+├── migrations
+│ └── migrations.go
+├── server
+│ └── server.go
+├── users
+│ ├── controllers
+│ │ └── userControllers.go
+│ ├── dtos
+│ │ └── userDtos.go
+│ ├── models
+│ │ └── users.go
+│ └── routes.go
+└── utils
+├── pagination.go
+└── validateStructs.go
+```
