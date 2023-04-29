@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/fahad-md-kamal/fiber-blogs/configs"
 	"gorm.io/driver/postgres"
@@ -17,6 +18,7 @@ func DbConfig() error {
 
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		log.Printf("error Connecting to the database: %s", err.Error())
 		return err
 	}
 	return nil

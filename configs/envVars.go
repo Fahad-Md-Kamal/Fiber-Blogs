@@ -2,6 +2,7 @@ package configs
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -25,6 +26,7 @@ var ENVs EnvConfig
 func LoadEnvs() error {
 	err := godotenv.Load(".env")
 	if err != nil {
+		log.Printf("error loading .env file: %s", err.Error())
 		return fmt.Errorf("error loading .env file: %w", err)
 	}
 
@@ -37,6 +39,7 @@ func LoadEnvs() error {
 	// var cfg EnvConfig
 	err = mapstructure.Decode(envVars, &ENVs)
 	if err != nil {
+		log.Printf("error decoding env vars: %s", err.Error())
 		return fmt.Errorf("error decoding env vars: %w", err)
 	}
 

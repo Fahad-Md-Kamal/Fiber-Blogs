@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/fahad-md-kamal/fiber-blogs/users/dtos"
@@ -14,7 +15,10 @@ func AddUserHandler(c *fiber.Ctx) error {
 	var userCreateDto dtos.UserCreateDto
 
 	if err := c.BodyParser(&userCreateDto); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		log.Printf("Failed to perse provided | Data: %s | Error: %s", string(c.Body()), err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid data to create user",
+		})
 	}
 
 	if errors, ok := userCreateDto.ValidateUserCreateDto(); !ok {
@@ -22,16 +26,22 @@ func AddUserHandler(c *fiber.Ctx) error {
 	}
 
 	UserToCreate := userCreateDto.ParseFromDto()
-	if err, ok := UserToCreate.GeneratePasswordHash(); !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	if _, ok := UserToCreate.GeneratePasswordHash(); !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Failed to generate password hash",
+		})
 	}
 
 	if message, ok := UserToCreate.ValidateUserExists(); ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": message})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": message,
+		})
 	}
 
 	if err := UserToCreate.Save(); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Failed to create user",
+		})
 	}
 
 	responseDto := new(dtos.UserResponseDto)
@@ -52,7 +62,9 @@ func GetUsersListHandler(c *fiber.Ctx) error {
 	// Get Users List
 	users, totalCount, err := models.GetUsersList(limit, offset)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Failed to get user's list",
+		})
 	}
 
 	// Convert User's list into response Dtos
@@ -66,17 +78,16 @@ func GetUsersListHandler(c *fiber.Ctx) error {
 func GetUserDetailHandler(c *fiber.Ctx) error {
 	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
 	if err != nil {
+		log.Printf("Error parsing userId: %s | Error: %s", c.Params("id"), err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Invalid User Id",
+			"error": "Invalid User Id",
 		})
 	}
 
 	user, err := models.GetUserById(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Failed to get user",
+			"error": "Failed to get user",
 		})
 	}
 
@@ -89,32 +100,30 @@ func GetUserDetailHandler(c *fiber.Ctx) error {
 func UpdateUserHandler(c *fiber.Ctx) error {
 	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
 	if err != nil {
+		log.Printf("Error parsing userId: %s | Error: %s", c.Params("id"), err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Invalid User Id",
+			"error": "Invalid User Id",
 		})
 	}
 
 	var userUpdateDto dtos.UserUpdateDto
 	if err := c.BodyParser(&userUpdateDto); err != nil {
+		log.Printf("Failed to perse provided | Data: %s | Error: %s", string(c.Body()), err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Failed to parse provided data",
+			"error": "Failed to parse provided data",
 		})
 	}
 
 	if errors, ok := userUpdateDto.ValidateUserUpdateDto(); !ok {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   errors,
-			"message": "Invalid data to update",
+			"error": errors,
 		})
 	}
 
 	userToUpdate, err := models.GetUserById(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Failed to get user",
+			"error": "Failed to get user",
 		})
 	}
 
@@ -126,16 +135,14 @@ func UpdateUserHandler(c *fiber.Ctx) error {
 
 	if exists {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   msg,
-			"message": msg,
+			"error": msg,
 		})
 	}
 
 	updatedUser, err := userToUpdate.UpdateUser(&userUpdateDto)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Failed to update user",
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Failed to update user",
 		})
 	}
 
@@ -148,24 +155,22 @@ func UpdateUserHandler(c *fiber.Ctx) error {
 func DeleteUserHandler(c *fiber.Ctx) error {
 	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
 	if err != nil {
+		log.Printf("Error parsing userID: %s | Error: %s", c.Params("id"), err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Invalid User Id",
+			"error": "Invalid User Id",
 		})
 	}
 
 	userToDelete, err := models.GetUserById(uint(userId))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Failed to get user",
+			"error": "Failed to get user",
 		})
 	}
 
 	if err := userToDelete.DeleteUser(); err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "Couldn't delete user",
+			"error": "Couldn't delete user",
 		})
 	}
 	return c.Status(fiber.StatusNoContent).JSON(fiber.Map{})
