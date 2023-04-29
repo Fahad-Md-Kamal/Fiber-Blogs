@@ -61,3 +61,16 @@ func ParseUsersListToResponseDto(users *[]models.Users) []UserResponseDto {
 	}
 	return usersList
 }
+
+func ParseUserToResponseDto(user *models.Users) *UserResponseDto {
+	userDto := UserResponseDto{
+		Id:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		IsActive:    user.IsActive,
+		IsSuperuser: user.IsSuperuser,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+	}
+	return &userDto
+}

@@ -443,7 +443,7 @@ build_dir = "tmp/build"
 Instead of running server with `go run main.go` now run the server with the command
 
 ```bash
-
+air
 ```
 
 Now Lets start developing our API Endpoints
@@ -532,7 +532,7 @@ func (udto *UserResponseDto) ParseToResponseDto(user *models.Users) {
 
 ```
 
-This will help us to avoid returing user's password or similar type secure credentials.
+> This will help us to avoid returing user's password or similar type secure credentials.
 
 Now we want to validate the data before creating the user. Therefore, we are going to use a package called validator from the go.
 
@@ -576,9 +576,9 @@ func ValidateStruct(inputStruct interface{}) []*ErrorResponse {
 
 ```
 
-Here we are creating ErrorResponse struct to generate all errors as error list.
+> Here we are creating ErrorResponse struct to generate all errors as error list.
 
-In ValidateStruct() function we are passing our struct. Then this will check each fields of the struct using it's validat rules. It will show errors list and will return it.
+> In ValidateStruct() function we are passing our struct. Then this will check each fields of the struct using it's validat rules. It will show errors list and will return it.
 
 Now we are going to use it on `userDtos.go` as:
 
@@ -644,11 +644,11 @@ func (u *Users) GeneratePasswordHash() (error, bool) {
 }
 ```
 
-Here:
+> `ValidateUserExists()` will check if user exists with username or email.
 
-- `ValidateUserExists()` will check if user exists with username or email.
-- `Save()` will create object if there is no Id otherwise will save it
-- `GeneratePasswordHash()` will generate password hash before saving it.
+> `Save()` will create object if there is no Id otherwise will save it
+
+> `GeneratePasswordHash()` will generate password hash before saving it.
 
 Now we will update our AddUserHandler() for creating user as follows.
 
@@ -681,7 +681,7 @@ func AddUserHandler(c *fiber.Ctx) error {
 	responseDto := new(dtos.UserResponseDto)
 	responseDto.ParseToResponseDto(UserToCreate)
 
-	return c.JSON(fiber.Map{
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"data": responseDto,
 	})
 }
@@ -689,13 +689,10 @@ func AddUserHandler(c *fiber.Ctx) error {
 
 Now restart the application from the Postman to create a user.
 
-- It show error if any field was missed.
-  ![Screenshot 2023-04-26 at 1.06.24 AM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4ad27ba9-1ab0-4174-a795-1385908801a4/Screenshot_2023-04-26_at_1.06.24_AM.png)
+**_It show error if any field was missed._**
+![Missing Field Error](https://user-images.githubusercontent.com/34704464/235286588-3c50ffcd-68c6-48ef-b853-4f869579db94.png)
 
-- It will create user with hashed password.
-- On successfully creating user, it will return the user as `UserResponseDto`
-
----
+> It will create user with hashed password. On successfully creating user, it will return the user as `UserResponseDto`
 
 ## R : Read (List)
 
@@ -847,3 +844,103 @@ That's it about the List API.
 **Next we are going to work with User details API**
 
 ## R: Read (Details)
+
+First we need to create another function named `GetUserDetailHandler` at `users/models/users.go` file since we are following a principle of communicating to database from this file.
+
+```go
+func GetUserById(userId uint) (*Users, error) {
+	var user Users
+	result := database.DB.First(&user, userId)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+```
+
+> This will take userId as parameter and return User or error as return type.
+
+Now lets create a DB user To DtoUser parsing function that will take a DB user model and convert it into a DtoUser.
+
+```go
+func ParseUserToResponseDto(user *models.Users) *UserResponseDto {
+	userDto := UserResponseDto{
+		Id:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		IsActive:    user.IsActive,
+		IsSuperuser: user.IsSuperuser,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+	}
+	return &userDto
+}
+```
+
+> Here we are passing DB User and maping each field to a UserResponseDto model.
+
+Now Lets create a `UserDetailHandler` function.
+
+```go
+func GetUserDetailHandler(c *fiber.Ctx) error {
+	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Invalid User Id",
+		})
+	}
+
+	user, err := models.GetUserById(uint(userId))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to get user",
+		})
+	}
+
+	dtoUser := dtos.ParseUserToResponseDto(user)
+	return c.JSON(fiber.Map{
+		"data": &dtoUser,
+	})
+}
+```
+
+First of all, we are converting `id` into a `uint` type (**_e.g. We could work with string. But for standered practice, it's better we convert it here_**)
+
+> If there is any error we immidiately show the actual error as error field and message as our custom error field.
+
+Than we are geting user from the database using using the function that we have already created in our `users/models/users.go` file as:
+
+```go
+	user, err := models.GetUserById(uint(userId))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to get user",
+		})
+	}
+```
+
+> If there is any error, it will return custom error message and system error message with a status of 404 not found.
+
+Finally, it will convert the database user into Dto User in order to hide fields that shouldn't be seen by end users.
+
+```go
+	dtoUser := dtos.ParseUserToResponseDto(user)
+	return c.JSON(fiber.Map{
+		"data": &dtoUser,
+	})
+```
+
+Now create an API route in our `users/routes.go`:
+
+```go
+router.Get("/:id", controllers.GetUserDetailHandler)
+```
+
+> Here we are providing `:id` as dynamic value into our url that will be parsed into uint into our handler finction.
+
+Let's hit the endpoint `{{url}}/users/1` and test our api:
+
+![User Detail API POST](https://user-images.githubusercontent.com/34704464/235286434-7f5e1648-a3d7-4cb2-8092-2f689aada587.png)

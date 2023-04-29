@@ -37,7 +37,7 @@ func AddUserHandler(c *fiber.Ctx) error {
 	responseDto := new(dtos.UserResponseDto)
 	responseDto.ParseToResponseDto(UserToCreate)
 
-	return c.JSON(fiber.Map{
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"data": responseDto,
 	})
 }
@@ -61,4 +61,27 @@ func GetUsersListHandler(c *fiber.Ctx) error {
 	// Get Paginated Response
 	pagination := utils.Paginate(int(totalCount), limit, page, userDtos)
 	return c.JSON(pagination)
+}
+
+func GetUserDetailHandler(c *fiber.Ctx) error {
+	userId, err := strconv.ParseUint(c.Params("id"), 10, 0)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Invalid User Id",
+		})
+	}
+
+	user, err := models.GetUserById(uint(userId))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   err.Error(),
+			"message": "Failed to get user",
+		})
+	}
+
+	dtoUser := dtos.ParseUserToResponseDto(user)
+	return c.JSON(fiber.Map{
+		"data": &dtoUser,
+	})
 }

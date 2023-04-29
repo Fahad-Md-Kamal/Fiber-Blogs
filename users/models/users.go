@@ -59,3 +59,12 @@ func GetUsersList(limit, offset int) ([]Users, int64, error) {
 
 	return users, totalCount, nil
 }
+
+func GetUserById(userId uint) (*Users, error) {
+	var user Users
+	result := database.DB.First(&user, userId)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
