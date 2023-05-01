@@ -30,6 +30,10 @@ func LoginHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 
+	if !dbUser.IsActive {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "User Inactive"})
+	}
+
 	if msg, ok := dbUser.ValidatePasswordHash(loginRequestData.Password); !ok {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": msg})
 	}

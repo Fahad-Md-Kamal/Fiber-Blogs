@@ -18,8 +18,10 @@ func GenerateJwtToken(user *models.Users) (string, bool) {
 		return "Failed to read token lifetime environment variable", false
 	}
 	claims := &dtos.TokenClaimPayload{
-		ID:       user.ID,
-		Username: user.Username,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		IsSuperuser: user.IsSuperuser,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Duration(tokenLifetime) * time.Hour).Unix(),
 		},

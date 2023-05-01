@@ -7,8 +7,10 @@ import (
 )
 
 type TokenClaimPayload struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
+	ID          uint   `json:"id"`
+	Username    string `json:"username"`
+	Email       string `json:"email"`
+	IsSuperuser bool   `json:"is_superuser"`
 	jwt.StandardClaims
 }
 

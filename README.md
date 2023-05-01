@@ -1455,3 +1455,199 @@ Now register this token to the routers and hit the api. It will logout users suc
 Congratulations !!
 
 Our Login & Logout API with JWT token (serverless access) complete.
+
+## PART 4 : Middleware
+
+### Let's create middleware function to protect our routes from unauthorized users.
+
+Create a file called `middlewares/jwtMiddleware.go` add a middleware function as follows.
+
+```go
+package middlewares
+
+import (
+
+	...
+	userdtos "github.com/fahad-md-kamal/fiber-blogs/users/dtos"
+	usermodels "github.com/fahad-md-kamal/fiber-blogs/users/models"
+	...
+
+)
+
+func JwtMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		authHeader := c.Get("Authorization")
+		if authHeader == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization header"})
+		}
+		tokenString := authHeader[len("Bearer "):]
+
+		blacklistedToken := usermodels.BlacklistedTokens{Token: tokenString}
+		if blacklistedToken.IsTokenBlacklisted() {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid token or token expired",
+			})
+		}
+
+		token, err := jwt.ParseWithClaims(tokenString, &userdtos.TokenClaimPayload{},
+			func(token *jwt.Token) (interface{}, error) {
+				// Get the signing key from your authentication server or config file
+				signingKey := []byte(configs.ENVs.JwtSecretKey)
+				return signingKey, nil
+			})
+
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid JWT signature"})
+			}
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid JWT token"})
+		}
+
+		// Check if token is valid
+		if !token.Valid {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid JWT token"})
+		}
+
+		// Extract claims from JWT token
+		claims, ok := token.Claims.(*userdtos.TokenClaimPayload)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid JWT token"})
+		}
+
+		var user usermodels.Users
+		user.ID = claims.ID
+		user.Username = claims.Username
+		user.IsSuperuser = claims.IsSuperuser
+		user.Email = claims.Email
+		c.Locals("user", user)
+		return c.Next()
+	}
+}
+```
+
+> Here we are getting Authorization value from request header with `authHeader := c.Get("Authorization")`
+
+```go
+	tokenString := authHeader[len("Bearer "):]
+
+	blacklistedToken := usermodels.BlacklistedTokens{Token: tokenString}
+	if blacklistedToken.IsTokenBlacklisted() {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token or token expired",
+		})
+	}
+```
+
+> Here we are checking token if is already used and logged out which we are metioning.
+
+```go
+	token, err := jwt.ParseWithClaims(tokenString, &userdtos.TokenClaimPayload{},
+		func(token *jwt.Token) (interface{}, error) {
+			// Get the signing key from your authentication server or config file
+			signingKey := []byte(configs.ENVs.JwtSecretKey)
+			return signingKey, nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid JWT signature"})
+		}
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid JWT token"})
+	}
+
+	// Check if token is valid
+	if !token.Valid {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid JWT token"})
+	}
+```
+
+> Here we are chekcking token signature
+>
+> And whether token is valid or not.
+
+Finally, we are populating token payload to a user and passing it to fiber context so that we can access user from our api's.
+
+```go
+	var user usermodels.Users
+	user.ID = claims.ID
+	user.Username = claims.Username
+	user.IsSuperuser = claims.IsSuperuser
+	user.Email = claims.Email
+	c.Locals("user", user)
+	return c.Next()
+```
+
+> finally we are moving to our next middleware.
+
+**Now to use the Middleware we can use it to our route as.**
+
+```go
+func UsersRouts(app *fiber.App) {
+	router := app.Group("users", middlewares.JwtMiddleware())
+
+	router.Post("/", controllers.AddUserHandler)
+	router.Get("/", controllers.GetUsersListHandler)
+	router.Get("/:id", controllers.GetUserDetailHandler)
+	router.Put("/:id", controllers.UpdateUserHandler)
+	router.Delete("/:id", controllers.DeleteUserHandler)
+	...
+}
+```
+
+> Here all the routes that are registerd with `router` are using the `JwtMiddleware()` will require authentication token in the header.
+
+**_N.B. Let's remove the validation code from logout function since it is being done by our JwtMiddleware now._**
+
+```go
+	if ok := blacklistedToken.IsTokenBlacklisted(); ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token or token expired",
+		})
+	}
+```
+
+**Congratulations !!**
+
+We have secured our api's from un authenticated users.
+
+![Secured API Route](https://user-images.githubusercontent.com/34704464/235442646-bec55b8b-70f4-4bfa-b533-f7073aa901f4.png)
+
+**Our Current project stracture should be as**
+
+```md
+├── LICENSE
+├── README.md
+├── configs
+│ └── envVars.go
+├── database
+│ └── dbSetup.go
+├── example.env
+├── go.mod
+├── go.sum
+├── main.go
+├── middlewares
+│ └── jwtMiddlewars.go
+├── migrations
+│ └── migrations.go
+├── server
+│ └── server.go
+├── users
+│ ├── controllers
+│ │ ├── authControllers.go
+│ │ └── userControllers.go
+│ ├── dtos
+│ │ ├── authDtos.go
+│ │ └── userDtos.go
+│ ├── helpers
+│ │ └── jwtTokeHelpers.go
+│ ├── models
+│ │ ├── auth.go
+│ │ └── users.go
+│ └── routes.go
+└── utils
+├── pagination.go
+└── validateStructs.go
+```
+
+Updated code could be found here:
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/middleware](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/middleware)
