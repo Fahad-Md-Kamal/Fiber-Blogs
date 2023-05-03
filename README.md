@@ -1,5 +1,12 @@
 # Go-Fiber Project
 
+Go is a programming language that's commonly used for building web applications and microservices, Fiber is a web framework for Go that's fast, flexible, and easy to use, and GORM is an ORM library for Go that simplifies database interactions. Combining Fiber and GORM can provide a powerful toolset for building web applications with Go. Moreover, JWT is the modern authentication and authorization mechanism that we are going to use in our project.
+
+Here I'm going to develop a complete API with fiber + GORM + JWT to demonstrate the complete project architecture.
+
+The complete code could is available at:  
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs](https://github.com/Fahad-Md-Kamal/Fiber-Blogs)
+
 ## Create and Run Fiber-Go Project
 
 Start go project with the command:
@@ -113,9 +120,13 @@ Congratulations !!
 
 We have started the Fiber Go server.
 
+Code for this far could be found at:  
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1/project-setup](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1/project-setup)
+
 <br>
 <br>
 <br>
+
 
 ## Create API Endpoint
 ---
@@ -200,7 +211,7 @@ Now our project’s structure should look as follows:
 
 The code could be found here:
 
-[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1)
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1/project-setup](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1/project-setup)
 
 <br>
 <br>
@@ -449,7 +460,7 @@ We have connected the database and created User table with GORM.
 
 ***The code could be found here:***
 
-[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-2](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-2)
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-2/database-connection](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-2/database-connection)
 
 <br>
 <br>
@@ -811,6 +822,9 @@ Our Current Folder stracture should be now as:
 │ │ └── validateStructs.go
 ```
 
+Code for this far could be found here:  
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/user-create](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/user-create)
+
 <br>
 <br>
 <br>
@@ -981,6 +995,9 @@ Now run the application and see the paginated response.
 
 > That's it about `Read (List)` API.
 
+Code for this far could be found here:
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/paginated-list](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/paginated-list)
+
 <br>
 <br>
 <br>
@@ -1092,9 +1109,15 @@ Let's hit the endpoint `{{url}}/users/1` and test our api:
 
 We have developed the Detail API endpoint.
 
----
+Code for this far could be found here:  
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/user-details](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/user-details)
+
+<br>
+<br>
+<br>
 
 ## CRUD - U : UPDATE (PUT)
+---
 
 In order to develop update endpoint first, lets create a `UpdateUser()` function into our`users/models/users.go` file that will be responsible for communicating with the database.
 
@@ -1262,6 +1285,9 @@ We have created an update API.
 
 Our Folder stracture's will be same as before.
 
+Code for this far could be found at:  
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/user-update](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-3/api/user-update)
+
 <br>
 <br>
 <br>
@@ -1368,6 +1394,9 @@ After this far, folder stracture should look like this
 <br>
 
 ## *N.B. I have update the project to show log instead of returning system error to users*
+
+See in code:  
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-4/logger](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-4/logger)
 
 <br>
 <br>
@@ -1822,5 +1851,5 @@ We have secured our api's from un authenticated users.
   └── validateStructs.go
 ```
 
-Updated code could be found here:
-[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/middleware](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/middleware)
+Code for this far could be found here:  
+[https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-4/middleware/jwt-auth](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-4/middleware/jwt-auth)
