@@ -1266,7 +1266,7 @@ Our Folder stracture's will be same as before.
 <br>
 <br>
 
-## D : DELETE (Delete)
+## CRUD - D : DELETE (Delete)
 
 ---
 
@@ -1367,7 +1367,7 @@ After this far, folder stracture should look like this
 <br>
 <br>
 
-## N.B. I have update the project to show log instead of returning system error to users
+## *N.B. I have update the project to show log instead of returning system error to users*
 
 <br>
 <br>
