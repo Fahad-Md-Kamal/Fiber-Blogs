@@ -1,14 +1,14 @@
 # Go-Fiber Project
 
-# PART 0: Create & Run Fiber-Go Project
+## Create and Run Fiber-Go Project
 
-### Start go project with the command:
+Start go project with the command:
 
 ```bash
 go mod init github.com/fahad-md-kamal/fiber-blogs
 ```
 
-This will start a go project with the file `go.mod`.
+> This will start a go project with the file `go.mod`.
 
 ```bash
 module github.com/fahad-md-kamal/fiber-blogs
@@ -16,7 +16,7 @@ module github.com/fahad-md-kamal/fiber-blogs
 go 1.20
 ```
 
-All of our dependencies lists will be stored here. This is similar to node project’s `pacakge.json` or `requirements.txt` file of Python projects.
+> All of our dependencies lists will be stored here. This is similar to node project’s `pacakge.json` or `requirements.txt` file of Python projects.
 
 Now let's install Fiber with the command.
 
@@ -24,7 +24,7 @@ Now let's install Fiber with the command.
 go get github.com/gofiber/fiber/v2
 ```
 
-N.B: This will update `go.mod` file with the dependencies of fiber’s dependencies as follows:
+**N.B:** This will update `go.mod` file with the dependencies of fiber’s dependencies as follows:
 
 ```go
 module github.com/fahad-md-kamal/fiber-blogs
@@ -51,10 +51,9 @@ require (
 )
 ```
 
-This will also generate a file called `go.sum`. But do not have any concerns with this file since this file is automatically managed by the go package manager on `go.mod` files modification.
+> This will also generate a file called `go.sum`. But do not have any concerns with this file since this file is automatically managed by the go package manager on `go.mod` files modification.
 
-Now we are ready to start our Fiber-Go project.
-
+Now we are ready to start our Fiber-Go project.  
 Let's add a file to our project’s root directory as `main.go`
 
 ```go
@@ -67,8 +66,7 @@ func main() {
 }
 ```
 
-Go project’s entrypoint is always `main()` function which resides in `package main`
-
+**Go project’s entrypoint is always `main()` function which resides in `package main`**  
 Now let's start our go fiber server. Create a file called **server/server.go.** Now add the following code to the server.go file.
 
 ```go
@@ -84,7 +82,7 @@ func SetupAndListen() {
 }
 ```
 
-Here we are telling our server to create an app instance of fiber and listen to port **3000**.
+> Here we are telling our server to create an app instance of fiber and listen to port **3000**.
 
 Now update the main.go file with the following line.
 
@@ -100,28 +98,33 @@ func main() {
 }
 ```
 
-_N.B. If you are using vscode’s go plugin then after writing the package name which in this case is **server** you will see suggestions to be auto-imported to the project._
-
+**N.B**. If you are using vscode’s go plugin then after writing the package name which in this case is **server** you will see suggestions to be auto-imported to the project.  
 Now open the terminal and type
 
 ```bash
 go run main.go
 ```
 
-This will start your go project and start listening to the port **3000**. You will see this something similar to the following to your terminal.
+> This will start your go project and start listening to the port **3000**. You will see this something similar to the following to your terminal.
 
 ![Screenshot 2023-04-25 at 12.56.39 PM.png](https://user-images.githubusercontent.com/34704464/235286857-858a7ee1-7c40-444e-b0c9-e931e9c241ab.png)
 
 Congratulations !!
 
-You have started the Fiber Go server.
+We have started the Fiber Go server.
 
-# PART 1: Create API Endpoint
+<br>
+<br>
+<br>
+
+## Create API Endpoint
+---
+
 
 Now let's create an API endpoint With Fiber:
 
-- Create a folder called users (With the intention to modularize the project)
-- Now create another file called `users/userControllers.go` and add an API handler function to it.
+Create a folder called users (***With the intention to modularize the project***)  
+Now create another file called `users/userControllers.go` and add an API handler function to it.
 
 ```go
 package controllers
@@ -135,7 +138,7 @@ func GetUsersListHandler(c *fiber.Ctx) error {
 }
 ```
 
-- Now register this route to the `users/routes.go` routes list as
+Now register this route to the `users/routes.go` routes list as
 
 ```go
 package users
@@ -152,7 +155,7 @@ func UsersRouts(app *fiber.App) {
 }
 ```
 
-- Finally include this Users Module route to Our main app on `server.go` as follows.
+Finally include this Users Module route to Our main app on `server.go` as follows.
 
 ```go
 package server
@@ -180,13 +183,32 @@ Our Fiber API receives API requests from clients. returns response.
 
 Now our project’s structure should look as follows:
 
-![Project Stracture](https://user-images.githubusercontent.com/34704464/235286937-b8569085-d8f7-4992-aed0-2c4830846cb7.png)
+
+```md
+├── LICENSE
+├── README.md
+├── go.mod
+├── go.sum
+├── main.go
+├── server
+│ └── server.go
+├── users
+│ ├── controllers
+│ │ └── userControllers.go
+│ └── routes.go
+```
 
 The code could be found here:
 
 [https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-1)
 
-# PART 2: Connect with database (Postgres) using GORM
+<br>
+<br>
+<br>
+
+## Connect to database (Postgres) using GORM
+---
+
 
 Inorder to connect Postgres Database we need to install the GORM package and GORM’s postgres database driver:
 
@@ -202,7 +224,7 @@ go get github.com/joho/godotenv
 go get github.com/mitchellh/mapstructure
 ```
 
-Here, `godotenv` will load environment (env) variables and `mapstructure` will be mapping those env variables into go structs.
+> Here, `godotenv` will load environment (env) variables and `mapstructure` will be mapping those env variables into go structs.
 
 Read Environment variables and return those as go struct from `configs/envVars.go`
 
@@ -253,11 +275,11 @@ func LoadEnvs() error {
 }
 ```
 
-Here we have declared a struct `EnvConfig` and mapping environment variables according to `EnvConfig` Struct through the `LoadEnvs` function.
+> Here we have declared a struct `EnvConfig` and mapping environment variables according to `EnvConfig` Struct through the `LoadEnvs` function.
+>
+> > Note that, here LoadEnvs tries to load environments from `.env` file.
 
-Note that, here LoadEnvs tries to load environments from `.env` file.
-
-_N.B: Add a file to the project’s root directory named `.env` and add the variables that you have declared on `EnvConfig`._
+***N.B: Add a file to the project’s root directory named `.env` and add the variables that you have declared on `EnvConfig`.***
 
 ```
 SERVING_PORT=:8000
@@ -270,9 +292,8 @@ SECRET_KEY=123456789
 JWT_SECRET_KEY=2
 ```
 
-Now let's create a database connection.
-
-- Create a file `database/dbSetup.go`
+Now let's create a database connection.  
+Create a file `database/dbSetup.go`
 
 ```go
 package database
@@ -300,11 +321,11 @@ func DbConfig() error {
 }
 ```
 
-Here we are creating a Global `var DB *gorm.DB` variable that could be accessed from all over the project to interact with the database.
+> Here we are creating a Global `var DB *gorm.DB` variable that could be accessed from all over the project to interact with the database.
+> 
+> The `DbConfig` function loads environment configs and generates interpolated environment values for the Database connection to be executed.
 
-The `DbConfig` function loads environment configs and generates interpolated environment values for the Database connection to be executed.
-
-Now in order to load environment variables before creating a database connection execute `LoadEnvs()` function from `main.go` so that it loads environment configs before creating a database connection.
+Now in order to load environment variables before creating a database connection need to execute `LoadEnvs()` function from `main.go` so that it loads environment configs before creating a database connection.
 
 ```go
 package main
@@ -326,7 +347,7 @@ func main() {
 }
 ```
 
-Now create a GORM struct for Users as follows:
+Create a GORM struct for Users as follows:
 
 ```go
 package models
@@ -343,7 +364,7 @@ type Users struct {
 }
 ```
 
-**\*N.B:** Since we are adding gorm.Model, GORM will automatically add ID, CreatedAt, UpdatedAt,DeletedAt fields to the struct.\*
+> **N.B:** Since we are adding `gorm.Model`, GORM will automatically add `ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt` fields to the struct and database table.
 
 Update `database/dbSetup.go` file to auto-migrate changes to the database on system start.
 
@@ -380,33 +401,69 @@ func DbConfig() error {
 }
 ```
 
-Here we have added Migrate function that will be called from DbConfig function. Since we want to apply all our changes to the database during the server start, therefore, we are calling the `Migrate()` function from `DbConfig()` function which is called from `main.go` before starting the fiber server.
+> Here we have added Migrate function that will be called from DbConfig function. Since we want to apply all our changes to the database during the server start, therefore, we are calling the `Migrate()` function from `DbConfig()` function which is called from `main.go` before starting the fiber server.
+> 
+> In Migrate function we are passing our Users struct to create the database table based on the gorm struct.
+>
+>> **N.B:** All the structs that we are going to generate, will be added to `DB.AutoMigrate(&usermodels.Users{})` comma separated.  
 
-In Migrate function we are passing our Users struct to create the database table based on the gorm struct.
+Besides, since our user model is in the Models package of the `Users module`, therefore, we are importing the package as:
 
-_N.B: All the structs that we are going to generate will be added `DB.AutoMigrate(&usermodels.Users{})` comma separated. Moreover, since our user model is in the Models package of the Users module, therefore, we are importing the package_ `usermodels "github.com/fahad-md-kamal/fiber-blogs/users/models"` _with alies `usermodels`._
+```go
+package migrations
+
+import (
+	...
+	usermodels "github.com/fahad-md-kamal/fiber-blogs/users/models"
+	...
+)
+```
 
 That’s it now run the project and check the database. It will apply all the changes to the database right before the server starts.
 
-Congratulations !!
+### Congratulations !!
 
-You have created connected the database and created a table with GORM.
+We have connected the database and created User table with GORM.
 
-Folder Architecture should look like this.
+*Folder Architecture should look like this.*
 
-![Folder Stracture](https://user-images.githubusercontent.com/34704464/235286978-47a08cfd-2ae4-4c4c-b88a-9dc069b2a6d6.png)
+```md
+├── LICENSE
+├── README.md
+├── configs
+│ └── envVars.go
+├── database
+│ └── dbSetup.go
+├── go.mod
+├── go.sum
+├── main.go
+├── server
+│ └── server.go
+├── users
+│ ├── controllers
+│ │ └── userControllers.go
+│ ├── models
+│ │ └── users.go
+│ └── routes.go
+```
 
-The code could be found here:
+***The code could be found here:***
 
 [https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-2](https://github.com/Fahad-Md-Kamal/Fiber-Blogs/tree/part-2)
 
-# PART 3 : CRUD
+<br>
+<br>
+<br>
 
-Before going any further, we need to configure our development server to auto reload after any change we made to our codebase, incase of avoiding manual server restart. Here I've use [air](https://github.com/cosmtrek/air) to auto reload my developement server.
+## CRUD
+---
+
+Before going any further, we need to configure our development server to auto reload after any change we made to our codebase, incase of avoiding manual server restart. 
+Here I've used [air](https://github.com/cosmtrek/air) to auto reload my developement server.  
 You can follow the instruction from the following url:
 [https://github.com/cosmtrek/air](https://github.com/cosmtrek/air).
 
-**I've followed install.sh but you can choose something else\_**
+**I've followed install.sh but you can choose something else.**
 
 ```bash
 # binary will be $(go env GOPATH)/bin/air
@@ -418,7 +475,7 @@ curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh
 air -v
 ```
 
-Root diractory file `.air.toml`
+`air`'s config file on Root diractory `.air.toml`
 
 ```txt
 # .air.toml
@@ -446,9 +503,14 @@ Instead of running server with `go run main.go` now run the server with the comm
 air
 ```
 
+This should now run the server and detect any changes to any file and auto reload the server.  
 Now Lets start developing our API Endpoints
 
-## C: Create
+<br>
+<br>
+<br>
+
+## CRUD - C: Create
 
 I have seperated database migration machanisams to a seperate package named migrations as follows:
 
@@ -466,6 +528,7 @@ func MigrateChanges() {
 	)
 }
 ```
+> This will help us to avoid cyclic import and seperate database configurations from project's configurations.
 
 `dbSetup.go` file is modified to
 
@@ -495,7 +558,15 @@ func DbConfig() error {
 }
 ```
 
-Add a file `users/dtos/userDtos.go` that will be used to validate user's request and return API response
+> I am planning to seperate model validation and model representation layer seperated from application and database layer. Since, I belive, application layer's responsibility is to implement business logic and database layer's responsibility is to communicate data.
+> 
+> Dto's for validation and representation layer.
+> 
+> models for database layer.
+>
+> Controller / Utils / helpers for business layer.
+
+Add a file `users/dtos/userDtos.go` that will be used to validate user's request and return API response.
 
 ```go
 package dtos
@@ -534,16 +605,14 @@ func (udto *UserResponseDto) ParseToResponseDto(user *models.Users) {
 
 > This will help us to avoid returing user's password or similar type secure credentials.
 
-Now we want to validate the data before creating the user. Therefore, we are going to use a package called validator from the go.
-
+Now we want to validate the data before creating the user. Therefore, we are going to use a package called validator from the go.  
 Install the package:
 
 ```bash
 go get github.com/go-playground/validator/v10
 ```
 
-Now let's create an utility package that could be used globally for any model that we want to validate.
-
+Now let's create an utility package that could be used globally for any model that we want to validate.  
 Add a file `utils/validateStructs.go`.
 
 ```go
@@ -577,8 +646,8 @@ func ValidateStruct(inputStruct interface{}) []*ErrorResponse {
 ```
 
 > Here we are creating ErrorResponse struct to generate all errors as error list.
-
-> In ValidateStruct() function we are passing our struct. Then this will check each fields of the struct using it's validat rules. It will show errors list and will return it.
+> 
+> In `ValidateStruct()` function we are passing our struct. Then this will check each fields of the struct using it's validat rules. It will show errors list and will return it.
 
 Now we are going to use it on `userDtos.go` as:
 
@@ -593,7 +662,7 @@ func (data *UserCreateDto) ValidateUserCreateDto() ([]*utils.ErrorResponse, bool
 }
 ```
 
-Now add two functions to the GORM's Users model on `users.go`
+Now add two functions to Users model on `users.go`
 
 ```go
 package models
@@ -650,7 +719,7 @@ func (u *Users) GeneratePasswordHash() (error, bool) {
 >
 > `GeneratePasswordHash()` will generate password hash before saving it.
 
-Now we will update our AddUserHandler() for creating user as follows.
+Now we will update our `AddUserHandler()` for creating users as:
 
 ```go
 func AddUserHandler(c *fiber.Ctx) error {
@@ -687,14 +756,66 @@ func AddUserHandler(c *fiber.Ctx) error {
 }
 ```
 
-Now restart the application from the Postman to create a user.
+Let's Register this handler function to the routes as:
 
-**_It show error if any field was missed._**
+```go
+package users
+
+import (
+	"github.com/fahad-md-kamal/fiber-blogs/users/controllers"
+	"github.com/gofiber/fiber/v2"
+)
+
+func UsersRouts(app *fiber.App) {
+	router := app.Group("users")
+
+	router.Post("/", controllers.AddUserHandler)
+}
+```
+
+
+Let's request from Postman to create a user.
+
+**_It show error if any fields were missing._**
 ![Missing Field Error](https://user-images.githubusercontent.com/34704464/235286588-3c50ffcd-68c6-48ef-b853-4f869579db94.png)
 
 > It will create user with hashed password. On successfully creating user, it will return the user as `UserResponseDto`
 
-## R : Read (List)
+Our Current Folder stracture should be now as:
+
+```md
+├── LICENSE
+├── README.md
+├── configs
+│ └── envVars.go
+├── database
+│ └── dbSetup.go
+├── example.env
+├── go.mod
+├── go.sum
+├── main.go
+├── migrations
+│ └── migrations.go
+├── server
+│ └── server.go
+├── users
+│ ├── controllers
+│ │ └── userControllers.go
+│ ├── dtos
+│ │ └── userDtos.go
+│ ├── models
+│ │ └── users.go
+│ └── routes.go
+│ │── utils
+│ │ │── pagination.go
+│ │ └── validateStructs.go
+```
+
+<br>
+<br>
+<br>
+
+## CRUD - R: Read (List)
 
 Lets create our User's List API Handler
 
@@ -721,13 +842,14 @@ func GetUsersListHandler(c *fiber.Ctx) error {
 }
 ```
 
-- Here we have added page, limit and offset for paginated reponse of user's list.
-- We have added a function `GetUsersList()` to our models.Users struct since we are interacting with database from our models package.
-- We are passing `limit` and `offset` to it as parameters and receiving users list, totalCount and error from it.
+> Here we have added page, limit and offset for paginated reponse of user's list.
+> 
+> We have added a function `GetUsersList()` to our model Users since we are interacting with database from our models package.
+>
+> We are passing `limit` and `offset` to it as parameters and receiving `users list`, `totalCount` and `error` from it.
 
 ```go
 // users/models/users.go
-
 
 func GetUsersList(limit, offset int) ([]Users, int64, error) {
 	var users []Users
@@ -746,7 +868,7 @@ func GetUsersList(limit, offset int) ([]Users, int64, error) {
 
 ```
 
-- Then we are Parsing models.Users list into User's Response Dto list in order to hide some fields from users.
+Then we are Parsing `models.Users` list into User's Response Dto list in order to hide some fields from users.
 
 ```go
 func ParseUsersListToResponseDto(users *[]models.Users) []UserResponseDto {
@@ -767,7 +889,7 @@ func ParseUsersListToResponseDto(users *[]models.Users) []UserResponseDto {
 
 ```
 
-- Finally preparing the paginated Response to send to the user.
+Finally preparing the paginated Response to send to the user.
 
 ```go
 type Pagination struct {
@@ -803,9 +925,26 @@ func Paginate(totalCount, limit, currentPage int, data interface{}) *Pagination 
 }
 ```
 
-Since this api was already configured to our routes list we are not going to add anything there.
+Register it to our routes list:
+```go
+package users
 
-Now run the application and see th paginated response.
+import (
+	"github.com/fahad-md-kamal/fiber-blogs/users/controllers"
+	"github.com/gofiber/fiber/v2"
+)
+
+func UsersRouts(app *fiber.App) {
+	router := app.Group("users")
+
+	...
+	router.Get("/", controllers.GetUsersListHandler)
+}
+
+```
+
+
+Now run the application and see the paginated response.
 
 ```json
 {
@@ -840,12 +979,16 @@ Now run the application and see th paginated response.
 }
 ```
 
-That's it about the List API.
-**Next we are going to work with User details API**
+> That's it about `Read (List)` API.
 
-## R: Read (Details)
+<br>
+<br>
+<br>
 
-First we need to create another function named `GetUserDetailHandler` at `users/models/users.go` file since we are following a principle of communicating to database from this file.
+## CRUD - R : Read (Detail)
+---
+
+First we need to create another function named `GetUserDetailHandler` at `users/models/users.go` file since we are following a principle of communicating to database from models.
 
 ```go
 func GetUserById(userId uint) (*Users, error) {
@@ -858,9 +1001,9 @@ func GetUserById(userId uint) (*Users, error) {
 }
 ```
 
-> This will take userId as parameter and return User or error as return type.
+> This will take userId as parameter and return `User` and `error` as return type.
 
-Now lets create a DB user To DtoUser parsing function that will take a DB user model and convert it into a DtoUser.
+Now lets create a parsing function to parse DB user into `DtoUser` function that will take a DB user model and convert it into a `DtoUser`.
 
 ```go
 func ParseUserToResponseDto(user *models.Users) *UserResponseDto {
@@ -877,7 +1020,7 @@ func ParseUserToResponseDto(user *models.Users) *UserResponseDto {
 }
 ```
 
-> Here we are passing DB User and maping each field to a UserResponseDto model.
+> Here we are passing DB User and maping each field to a `UserResponseDto` model.
 
 Now Lets create a `UserDetailHandler` function.
 
@@ -910,7 +1053,7 @@ First of all, we are converting `id` into a `uint` type (**_e.g. We could work w
 
 > If there is any error we immidiately show the actual error as error field and message as our custom error field.
 
-Than we are geting user from the database using using the function that we have already created in our `users/models/users.go` file as:
+Then we are getting user from the database using the `GetUserById()` function that we have already created in our `users/models/users.go` file as:
 
 ```go
 	user, err := models.GetUserById(uint(userId))
@@ -949,11 +1092,11 @@ Let's hit the endpoint `{{url}}/users/1` and test our api:
 
 We have developed the Detail API endpoint.
 
-## U : UPDATE (PUT)
+---
 
-### Lets develop an update api.
+## CRUD - U : UPDATE (PUT)
 
-`First, lets create a `UpdateUser`function into our`users/models/users.go` file that will be responsible for communicating with the database.
+In order to develop update endpoint first, lets create a `UpdateUser()` function into our`users/models/users.go` file that will be responsible for communicating with the database.
 
 ```go
 func (userToUpdate *Users) UpdateUser(updateDto interface{}, omitFields ...string) (*Users, error) {
@@ -970,7 +1113,7 @@ func (userToUpdate *Users) UpdateUser(updateDto interface{}, omitFields ...strin
 >
 > > **_e.g. This is because we want to restric general users to update certain fields such IsSuperuser, IsActive, Username etc._**
 
-We need to update our `ValidateUserExists` function (that we have developed for creating user) and create another function `ValidateUserExistsWithEmailOrUsername` to check user exists with the `username` and `email`.
+We need to update our `ValidateUserExists()` function that we have developed for creating user and create another function `ValidateUserExistsWithEmailOrUsername` to check user exists with the `username` and `email`.
 
 ```go
 type UserCheckParams struct {
@@ -1004,7 +1147,7 @@ func (u *Users) ValidateUserExists() (string, bool) {
 
 > Here we have created a `UserCheckParams` struct to control the parameters from single point.
 
-Now lets add an update UpdateUserDto that will be responsible for validating user update fields
+Now lets add an update `UpdateUserDto` that will be responsible for validating user update fields
 
 ```go
 type UserUpdateDto struct {
@@ -1087,11 +1230,14 @@ func UpdateUserHandler(c *fiber.Ctx) error {
 }
 ```
 
-> Here we are taking user id from the request and parsing it to `uint` and Geting user with the given ID.
+> Here we are taking user id from the request and parsing it to `uint` and Getting user with the given ID.
 >
 > Parsing provided data to `UserUpdateDto` and validating fields.
+>
 > Later we are geting user from the database
+>
 > Validating User with the given email exists.
+>
 > Finally we are updating user and returning the udpated user data by persing it `intoUserToResponseDto`
 
 Now register this handler to `users/routes.go` with for put request:
@@ -1110,13 +1256,20 @@ Now hit the api : `{{url}}/users/1`
 
 ![User UPDATE API](https://user-images.githubusercontent.com/34704464/235298500-e5cba53e-6d5d-4727-80c5-a366a5e0c226.png)
 
-Congratulations !!!
+### Congratulations !!!
 
 We have created an update API.
 
+Our Folder stracture's will be same as before.
+
+<br>
+<br>
+<br>
+
 ## D : DELETE (Delete)
 
-### Lets develop the delete api
+---
+
 
 `users/models/users.go`
 
@@ -1129,7 +1282,7 @@ func (u *Users) DeleteUser() error {
 }
 ```
 
-In this function we simply deleting user from the database. (**_e.g. Soft delete_**)
+In this function we are simply deleting user from the database. (**_e.g. Soft delete_**)
 
 **Delete User Handler**
 
@@ -1180,7 +1333,7 @@ After hitting `{{url}}/users/<user_id_to_delete>` **_e.g: `{{url}}/users/2`_** w
 
 ![User Delete API](https://user-images.githubusercontent.com/34704464/235302936-70d17000-860f-44ef-8755-54c9465ab8dd.png)
 
-After this far folder stracture should look like this
+After this far, folder stracture should look like this
 
 ```
 ├── LICENSE
@@ -1210,9 +1363,22 @@ After this far folder stracture should look like this
 └── validateStructs.go
 ```
 
-**_N.B. I have update the project to show log instead of returning system error to users_**
+<br>
+<br>
+<br>
+
+## N.B. I have update the project to show log instead of returning system error to users
+
+<br>
+<br>
+<br>
 
 ## Let's Create User Login API's Including JWT token
+
+---
+
+<br>
+
 
 First we will install Golang-jwt package for jwt token
 
@@ -1232,7 +1398,7 @@ type EnvConfig struct {
 
 > Here I have added to environment variables that will be used for generating JWT token
 
-Update `ValidateUserExistsWithEmailOrUsername` to return 3 data instead of only two.
+Update `ValidateUserExistsWithEmailOrUsername` to return 3 data instead of only two. This will help use reuse the function from several points.
 
 ```go
 func ValidateUserExistsWithEmailOrUsername(params UserCheckParams) (*Users, string, bool) {
@@ -1281,7 +1447,7 @@ func ParseToLoginResponseDto(token string, u *models.Users) *LoginResponseDto {
 }
 ```
 
-Added ValidatePasswordHash() at `users/models/users.go` to validate password hash
+Added `ValidatePasswordHash()` at `users/models/users.go` to validate password hash
 
 ```go
 func (user *Users) ValidatePasswordHash(password string) (string, bool) {
@@ -1326,7 +1492,7 @@ func GenerateJwtToken(user *models.Users) (string, bool) {
 >
 > Later I'm signing the token with our JwtSecretKey
 
-Than I've added a loginHandler function on `users/controllers/authControllers.go` file
+Now I'am adding a loginHandler function on `users/controllers/authControllers.go` file
 
 ```go
 
@@ -1365,7 +1531,7 @@ func LoginHandler(c *fiber.Ctx) error {
 >
 > Later I'm generating jwt token and parsing the user to `LoginUserResponseDto` before returning it.
 
-Finally, I've created an additional named unprotected router since that will be open for anyone to login into the system.
+Finally, I've created an additional router named `unProtectedRoute` since that will be open for anyone to login into the system.
 
 ```go
 func UsersRouts(app *fiber.App) {
@@ -1378,13 +1544,18 @@ func UsersRouts(app *fiber.App) {
 
 ```
 
-That's it our api Allows us to login into the system.
+That's it, our API now Allows us to login into the system.
 
-[Login API Response](https://user-images.githubusercontent.com/34704464/235322125-e69257b6-db80-4c0b-bfce-6551819fd8d3.png)
+![Login API Response](https://user-images.githubusercontent.com/34704464/235322125-e69257b6-db80-4c0b-bfce-6551819fd8d3.png)
 
-### Now lets develope logout api
+<br>
+<br>
+<br>
 
-First we need to create a BlacklistedToken model to store tokens into the database with one functions to Check if token is balcklisted or not. And other to store the token into the database as blacklisted.
+## Now let's develope logout api
+---
+
+First we need to create a `BlacklistedToken` model to store tokens into the database with one functions to Check if token is balcklisted or not. And other to store the token into the database as blacklisted.
 
 ```go
 type BlacklistedTokens struct {
@@ -1456,11 +1627,15 @@ Congratulations !!
 
 Our Login & Logout API with JWT token (serverless access) complete.
 
-## PART 4 : Middleware
+<br>
+<br>
+<br>
 
-### Let's create middleware function to protect our routes from unauthorized users.
+## Middleware
+---
 
-Create a file called `middlewares/jwtMiddleware.go` add a middleware function as follows.
+Let's create middleware function to protect our routes from unauthorized users.  
+Create a file called `middlewares/jwtMiddleware.go` add a middleware function as follows:
 
 ```go
 package middlewares
@@ -1538,7 +1713,7 @@ func JwtMiddleware() fiber.Handler {
 	}
 ```
 
-> Here we are checking token if is already used and logged out which we are metioning.
+> Here we are checking token if it has already been used and logged out which we are metioning.
 
 ```go
 	token, err := jwt.ParseWithClaims(tokenString, &userdtos.TokenClaimPayload{},
@@ -1565,7 +1740,7 @@ func JwtMiddleware() fiber.Handler {
 >
 > And whether token is valid or not.
 
-Finally, we are populating token payload to a user and passing it to fiber context so that we can access user from our api's.
+Finally, we are populating token payload to a user and passing it to fiber context so that we can access user from our api's and moving to our next middleware.
 
 ```go
 	var user usermodels.Users
@@ -1577,9 +1752,7 @@ Finally, we are populating token payload to a user and passing it to fiber conte
 	return c.Next()
 ```
 
-> finally we are moving to our next middleware.
-
-**Now to use the Middleware we can use it to our route as.**
+**Now we can use it to our route as:**
 
 ```go
 func UsersRouts(app *fiber.App) {
@@ -1594,7 +1767,7 @@ func UsersRouts(app *fiber.App) {
 }
 ```
 
-> Here all the routes that are registerd with `router` are using the `JwtMiddleware()` will require authentication token in the header.
+> Here all the routes that are registerd with `router` are using the `JwtMiddleware()` and they will require authentication token in the header.
 
 **_N.B. Let's remove the validation code from logout function since it is being done by our JwtMiddleware now._**
 
@@ -1645,8 +1818,8 @@ We have secured our api's from un authenticated users.
 │ │ └── users.go
 │ └── routes.go
 └── utils
-├── pagination.go
-└── validateStructs.go
+  ├── pagination.go
+  └── validateStructs.go
 ```
 
 Updated code could be found here:
