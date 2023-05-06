@@ -3,17 +3,19 @@
 @tailwind utilities;
 
 
-nav{
+nav {
     background-color: #daf3ff;
     padding-top: 20px;
     padding-top: 20px;
 }
-nav a{
+
+nav a {
     margin: 5px;
     padding: 3px;
     border-radius: 5px;
 }
-nav a.active{
+
+nav a.active {
     background-color: #657fe0;
     transition-duration: 500ms;
 }

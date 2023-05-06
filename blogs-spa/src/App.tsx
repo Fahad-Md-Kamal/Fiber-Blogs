@@ -4,8 +4,7 @@ import About from "./pages/about/About";
 import Home from "./pages/home/Home";
 import Login from "./pages/authentications/Login";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -25,4 +24,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

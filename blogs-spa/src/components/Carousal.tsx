@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import ImageOne from '../assets/images/nimbus.png';
-import ImageTwo from '../assets/images/ai.jpeg';
-import ImageThree from '../assets/images/image-1.png';
+import { useState } from "react";
+import ImageOne from "../assets/images/nimbus.png";
+import ImageTwo from "../assets/images/ai.jpeg";
+import ImageThree from "../assets/images/image-1.png";
 
 const images = [ImageOne, ImageTwo, ImageThree];
 
