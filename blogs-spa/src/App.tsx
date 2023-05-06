@@ -1,11 +1,22 @@
-// import reactLogo from './assets/react.svg'
-import './App.css'
+import { Route, Routes } from "react-router-dom";
+import Navigation from "./parts/Navigation";
+import About from "./pages/about/About";
+import Home from "./pages/home/Home";
 
 function App() {
-
   return (
-    <h1 className="text-3xl font-bold text-red-600">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Fuga repellendus dolorem doloremque eos aut eius ea, sint perspiciatis eligendi adipisci consequatur explicabo, ipsa inventore sequi cupiditate aspernatur labore, at reiciendis?</h1>
-  )
+    <>
+      <Navigation />
+      <div className="flex">
+        <div className="flex-1 p-4">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default App
