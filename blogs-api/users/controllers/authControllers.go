@@ -18,7 +18,7 @@ func LoginHandler(c *fiber.Ctx) error {
 	}
 
 	if errors, ok := loginRequestData.ValidateLoginRequestDto(); !ok {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": errors})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": errors})
 	}
 
 	userCheckParams := models.UserCheckParams{

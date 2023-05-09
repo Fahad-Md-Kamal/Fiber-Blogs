@@ -1,81 +1,69 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import {
-  showFailureToaster,
-  showSuccessToaster,
-} from "../../components/Tosters";
+import { Button, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
+import { loginApiService } from "../../services/authentication";
+import React, { useState } from "react";
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { LoginFormInputs } from "../../types/authentication";
 
-type LoginFormInputs = {
-  username: string;
-  password: string;
-};
 
-function saveTokenToLocaStorage(token: string): boolean {
-  localStorage.setItem("blog-token", token);
-  localStorage.setItem("isLoggedin", "1");
-
-  return true;
-}
-
-function Login() {
+const Login: React.FC  = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<LoginFormInputs>();
-  let responseData: any;
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
 
   const onSubmit = async (data: LoginFormInputs) => {
-    try {
-      const response = await fetch("http://localhost:3000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer <insert JWT token here>",
-        },
-        body: JSON.stringify(data),
-      });
-      responseData = await response.json();
-      if (!response.ok) {
-        showFailureToaster(responseData.error);
-      } else if (saveTokenToLocaStorage(responseData.token)) {
-        showSuccessToaster("Logged in successfully");
-        navigate("/");
-      }
-    } catch (error) {
-      console.log(error);
-      showFailureToaster("Failed to login");
-    }
+    if (await loginApiService(data)){
+      navigate("/");
+    };
   };
 
   return (
-    <div className="flex justify-center items-center max-h-screen">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="flex flex-col">
-          <label htmlFor="username">Username / Email</label>
-          <input
-            type="text"
-            id="username"
-            placeholder="fahadmdkamal@gmail.com"
-            {...register("username")}
-            className="border border-gray-300 rounded-md px-3 py-2"
+
+    <Box
+    onSubmit={handleSubmit(onSubmit)}
+    className="flex justify-center items-center max-h-screen"
+      component="form"
+      sx={{'& .MuiTextField-root': { m: 1, width: '25ch' }}}
+      noValidate
+      autoComplete="off"
+    >
+          <TextField 
+          id="username" 
+          label="Email / Username" 
+          variant="outlined" 
+          type="text" {...register("username")} 
           />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            placeholder="*****"
-            id="password"
+          <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+          <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+          <OutlinedInput
+            id="outlined-adornment-password"
+            type={showPassword ? 'text' : 'password'}
             {...register("password")}
-            className="border border-gray-300 rounded-md px-3 py-2"
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Password"
           />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600"
-        >
-          Log In
-        </button>
-      </form>
-    </div>
+        </FormControl>
+      <Button type="submit" variant="contained">Submit</Button>
+      </Box>
   );
 }
 
