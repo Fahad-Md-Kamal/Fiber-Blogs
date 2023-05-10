@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   IconButton,
@@ -39,11 +39,10 @@ const Login: React.FC = () => {
 
   return (
     <>
-    <h2>LOGIN </h2>
       <Box
         onSubmit={handleSubmit(onSubmit)}
         component="form"
-        // className="flex justify-center items-center max-h-screen"
+        className="flex flex-col justify-center items-center max-h-screen"
         sx={{ "& .MuiTextField-root": { m: 1, width: "25ch" } }}
         noValidate
         autoComplete="off"
@@ -78,7 +77,8 @@ const Login: React.FC = () => {
             label="Password"
           />
         </FormControl>
-        <Button type="submit" variant="contained">
+        <p className="my-8">Don't have a account ? <Link to={`/auth/signup`}>Join</Link></p>
+        <Button type="submit"  variant="contained">
           Submit
         </Button>
       </Box>

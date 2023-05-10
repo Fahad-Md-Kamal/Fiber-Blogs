@@ -20,8 +20,8 @@ function App() {
           path="/auth"
           element={<AuthenticationLayout />}
           children={[
-            <Route path="login" element={<Login />} />,
-            <Route path="signup" element={<Signup />} />,
+            <Route key={'1'} path="login" element={<Login />} />,
+            <Route key={'2'} path="signup" element={<Signup />} />,
           ]}
         />
         <Route path="/about" element={<About />} />

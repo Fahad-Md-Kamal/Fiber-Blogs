@@ -12,6 +12,7 @@ import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { Link } from "react-router-dom";
 
 export type SignupFormInputs = {
   email: string;
@@ -38,29 +39,17 @@ const Signup: React.FC = () => {
 
   return (
     <>
-      <h2>Signup Form</h2>
+      <h2 className="text-center">Signup Form</h2>
       <Box
         onSubmit={handleSubmit(onSubmit)}
-        className="flex justify-center items-center max-h-screen"
+        className="flex flex-col justify-center items-center max-h-screen"
         component="form"
         sx={{ "& .MuiTextField-root": { m: 1, width: "25ch" } }}
         noValidate
         autoComplete="off"
       >
-        <TextField
-          id="username"
-          label="Username"
-          variant="outlined"
-          type="text"
-          {...register("username")}
-        />
-        <TextField
-          id="username"
-          label="Email"
-          variant="outlined"
-          type="text"
-          {...register("email")}
-        />
+        <TextField id="username" label="Username" variant="outlined" type="text" {...register("username")} />
+        <TextField id="email" label="Email" variant="outlined" type="text" {...register("email")} />
         <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
           <InputLabel htmlFor="outlined-adornment-password">
             Password
@@ -84,6 +73,7 @@ const Signup: React.FC = () => {
             label="Password"
           />
         </FormControl>
+        <p className="my-8">Already have a account ? <Link to={`/auth/login`}>Login</Link></p>
         <Button type="submit" variant="contained">
           Submit
         </Button>
