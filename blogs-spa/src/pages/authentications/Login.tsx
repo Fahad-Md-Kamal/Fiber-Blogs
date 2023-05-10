@@ -1,51 +1,65 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { Button, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
+import {
+  Button,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  TextField,
+} from "@mui/material";
 import { loginApiService } from "../../services/authentication";
 import React, { useState } from "react";
-import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { LoginFormInputs } from "../../types/authentication";
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
+export type LoginFormInputs = {
+  username: string;
+  password: string;
+};
 
-const Login: React.FC  = () => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<LoginFormInputs>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault();
   };
 
   const onSubmit = async (data: LoginFormInputs) => {
-    if (await loginApiService(data)){
+    if (await loginApiService(data)) {
       navigate("/");
-    };
+    }
   };
 
   return (
-
-    <Box
-    onSubmit={handleSubmit(onSubmit)}
-    className="flex justify-center items-center max-h-screen"
-      component="form"
-      sx={{'& .MuiTextField-root': { m: 1, width: '25ch' }}}
-      noValidate
-      autoComplete="off"
-    >
-          <TextField 
-          id="username" 
-          label="Email / Username" 
-          variant="outlined" 
-          type="text" {...register("username")} 
-          />
-          <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
-          <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+      <Box
+        onSubmit={handleSubmit(onSubmit)}
+        component="form"
+        className="flex justify-center items-center max-h-screen"
+        sx={{ "& .MuiTextField-root": { m: 1, width: "25ch" } }}
+        noValidate
+        autoComplete="off"
+      >
+        <TextField
+          id="username"
+          label="Email / Username"
+          variant="outlined"
+          type="text"
+          {...register("username")}
+        />
+        <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+          <InputLabel htmlFor="outlined-adornment-password">
+            Password
+          </InputLabel>
           <OutlinedInput
             id="outlined-adornment-password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             {...register("password")}
             endAdornment={
               <InputAdornment position="end">
@@ -62,9 +76,11 @@ const Login: React.FC  = () => {
             label="Password"
           />
         </FormControl>
-      <Button type="submit" variant="contained">Submit</Button>
+        <Button type="submit" variant="contained">
+          Submit
+        </Button>
       </Box>
   );
-}
+};
 
 export default Login;

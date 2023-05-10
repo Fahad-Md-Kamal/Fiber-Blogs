@@ -16,11 +16,3 @@ export const serializeResponseDataToUser = (responseData: any): User => {
     isActive: !!responseData?.is_active,
   };
 };
-
-
-export type LoginFormInputs = {
-    username: string;
-    password: string;
-  };
-
-  
