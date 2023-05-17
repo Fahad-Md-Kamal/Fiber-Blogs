@@ -4,9 +4,7 @@ function Navigation() {
   return (
     <nav className="flex items-center justify-between flex-wrap bg-gray-800 p-6">
       <div className="flex items-center flex-shrink-0 text-white mr-6">
-        <Link to="/" className="font-semibold text-xl tracking-tight">
-          Tech Talk
-        </Link>
+        <Link to="/" className="font-semibold text-xl tracking-tight"> Tech Talk</Link>
       </div>
       <div className="block lg:hidden">
         <button
@@ -30,8 +28,6 @@ function Navigation() {
         <div className="text-sm lg:flex-grow">
           <Link to="/" className="block mt-4 lg:inline-block lg:mt-0 text-gray-300 hover:text-white mr-4">Home</Link>
           <Link to="/about" className="block mt-4 lg:inline-block lg:mt-0 text-gray-300 hover:text-white mr-4">About</Link>
-          <Link to="/auth/login" className="block mt-4 lg:inline-block lg:mt-0 text-gray-300 hover:text-white mr-4">Login</Link>
-          <Link to="/auth/signup" className="block mt-4 lg:inline-block lg:mt-0 text-gray-300 hover:text-white mr-4">Signup</Link>
         </div>
       </div>
     </nav>

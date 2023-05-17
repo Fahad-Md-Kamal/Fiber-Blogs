@@ -38,8 +38,6 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <>
-      <h2 className="text-center">Signup Form</h2>
       <Box
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col justify-center items-center max-h-screen"
@@ -51,9 +49,7 @@ const Signup: React.FC = () => {
         <TextField id="username" label="Username" variant="outlined" type="text" {...register("username")} />
         <TextField id="email" label="Email" variant="outlined" type="text" {...register("email")} />
         <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
-          <InputLabel htmlFor="outlined-adornment-password">
-            Password
-          </InputLabel>
+          <InputLabel htmlFor="outlined-adornment-password"> Password </InputLabel>
           <OutlinedInput
             id="outlined-adornment-password"
             type={showPassword ? "text" : "password"}
@@ -73,12 +69,11 @@ const Signup: React.FC = () => {
             label="Password"
           />
         </FormControl>
-        <p className="my-8">Already have a account ? <Link to={`/auth/login`}>Login</Link></p>
-        <Button type="submit" variant="contained">
+        <p className="my-8">Already have an account ? <Link to={`/auth/login`}>Login</Link></p>
+        <Button sx={{ width: '100%' }} size="large" type="submit" variant="contained">
           Submit
         </Button>
       </Box>
-    </>
   );
 };
 

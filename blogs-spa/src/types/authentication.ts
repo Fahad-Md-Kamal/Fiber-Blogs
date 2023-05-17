@@ -3,8 +3,8 @@ export type User = {
   token?: string;
   username: string;
   email: string;
-  isSuperuser: boolean;
-  isActive: boolean;
+  isSuperuser?: boolean;
+  isActive?: boolean;
 };
 
 export const serializeResponseDataToUser = (responseData: any): User => {

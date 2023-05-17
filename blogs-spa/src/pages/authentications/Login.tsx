@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { showSuccessToaster, showFailureToaster } from "../../components/Tosters";
 import {
   Button,
   IconButton,
@@ -14,6 +15,7 @@ import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useAuth } from "../../contexts/AuthProvider";
 
 export type LoginFormInputs = {
   username: string;
@@ -21,6 +23,9 @@ export type LoginFormInputs = {
 };
 
 const Login: React.FC = () => {
+  const  { isLogged, user, updateUser} = useAuth();
+  // updateUser({})
+
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<LoginFormInputs>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -32,13 +37,19 @@ const Login: React.FC = () => {
   };
 
   const onSubmit = async (data: LoginFormInputs) => {
-    if (await loginApiService(data)) {
-      navigate("/");
+    const loggedInUser = await loginApiService(data);
+    updateUser(loggedInUser)
+
+    if (isLogged){
+      showSuccessToaster("Logged In Successfully")
     }
+    else {
+      showFailureToaster("Login Failed");
+    }
+    // navigate("/");
   };
 
   return (
-    <>
       <Box
         onSubmit={handleSubmit(onSubmit)}
         component="form"
@@ -78,11 +89,8 @@ const Login: React.FC = () => {
           />
         </FormControl>
         <p className="my-8">Don't have a account ? <Link to={`/auth/signup`}>Join</Link></p>
-        <Button type="submit"  variant="contained">
-          Submit
-        </Button>
+        <Button sx={{ width: '100%' }} type="submit"  variant="contained"> Submit </Button>
       </Box>
-      </>
   );
 };
 
