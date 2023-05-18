@@ -1,5 +1,7 @@
 "use client";
 
+import { ApplicationRoutesEnum } from "@/lib/routesList";
+import Link from "next/link";
 import React, { useState } from "react";
 
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -15,7 +17,6 @@ type Props = {};
 const page = (props: Props) => {
   const { register, handleSubmit, formState } = useForm<IFormInput>();
   const {errors} = formState;
-  const [valid, setValid] = useState<boolean>(false);
   const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data);
 
   return (
@@ -97,12 +98,9 @@ const page = (props: Props) => {
           >
             Submit
           </button>
-          <a
-            className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-            href="#"
-          >
+          <Link className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href={ApplicationRoutesEnum.LOGIN} >
             Already has an account?
-          </a>
+          </Link>
         </div>
       </form>
     </>

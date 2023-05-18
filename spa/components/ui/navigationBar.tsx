@@ -1,3 +1,5 @@
+import { ApplicationRoutesEnum } from "@/lib/routesList";
+import Link from "next/link";
 import React from "react";
 
 const Navbar = () => {
@@ -9,30 +11,12 @@ const Navbar = () => {
             <span className="text-white font-bold text-lg">Logo</span>
           </div>
           <div className="flex">
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Home
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-            >
-              About
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Services
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Contact
-            </a>
+          <Link className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" 
+          href={ApplicationRoutesEnum.HOME}>Home</Link>
+          <Link className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" 
+          href={ApplicationRoutesEnum.LOGIN}>Login</Link>
+          <Link className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" 
+          href={ApplicationRoutesEnum.SINGUP}>Signup</Link>
           </div>
         </div>
       </div>
